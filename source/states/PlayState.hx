@@ -1,8 +1,5 @@
 package states;
 
-import flixel.util.FlxColor;
-import flixel.FlxSprite;
-import flixel.util.FlxGradient;
 import characters.Player;
 import collision.GroundPiece;
 import collision.TerrainManager;
@@ -11,14 +8,16 @@ import editor.EditorHistory;
 import editor.LevelDocument;
 import editor.LevelEditorState;
 import flixel.FlxG;
+import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.system.FlxAssets;
+import flixel.util.FlxColor;
+import flixel.util.FlxGradient;
 import openfl.Assets;
 import util.GroundPieceDefinition;
 
 class PlayState extends FlxState
 {
-	var terrain:TerrainManager;
+	public var terrain:TerrainManager;
 	var terrainPhysics:TerrainPhysics;
 
 	var player:Player;
@@ -41,6 +40,8 @@ class PlayState extends FlxState
 	{
 		super();
 
+		Global.PS = this;
+
 		this.editorPlaytestJson = playtestJson;
 		this.editorLevelPath = editorLevelPath;
 		this.editorSavePath = editorSavePath;
@@ -50,7 +51,7 @@ class PlayState extends FlxState
 
 		this.isEditorPlaytest = playtestJson != null;
 
-		this.levelPath = levelPath == null ? Global.levels[0] : levelPath;
+		this.levelPath = levelPath == null ? Global.levels[Global.currentLevel] : levelPath;
 	}
 
 	override public function create()
@@ -102,25 +103,12 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
-		// It's fun!
-		if (FlxG.mouse.pressed)
-        {
-            terrain.digCircleWorld(FlxG.mouse.x, FlxG.mouse.y, 24);
-        }
-
-		#if sys
-		if (FlxG.keys.justPressed.E)
-		{
-			FlxG.switchState(() -> new LevelEditorState("assets/data/levels/blank.json", "levels/level1.json"));
-		}
-
 		if (isEditorPlaytest && FlxG.keys.justPressed.ESCAPE)
 		{
-			FlxG.switchState(() -> new editor.LevelEditorState(editorLevelPath, editorSavePath, editorPlaytestJson, editorHistory, editorCurrentFilePath));
+			FlxG.switchState(() -> new LevelEditorState(editorLevelPath, editorSavePath, editorPlaytestJson, editorHistory, editorCurrentFilePath));
 
 			return;
 		}
-		#end
 	}
 
 	function addLevelGradient(document:LevelDocument)

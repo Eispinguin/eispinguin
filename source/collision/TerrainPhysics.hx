@@ -96,7 +96,7 @@ class TerrainPhysics
                     velocityX = 0;
                     hitWall = true;
 
-                    break; // why was this put here? -vaesea
+                    break; // nvm after searching ik why this was put here!!!
                 }
 
                 object.x = nextX;
@@ -152,7 +152,7 @@ class TerrainPhysics
                         grounded = false;
                     }
 
-                    break; // why was this put here? -vaesea
+                    break; // nvm after searching ik why this was put here!!!
                 }
 
                 object.y = nextY;
@@ -196,7 +196,7 @@ class TerrainPhysics
                 if (solidAt(px, py))
                 {
                     foundSurface = true;
-                    break; // why was this put here? -vaesea
+                    break; // nvm after searching ik why this was put here!!!
                 }
             }
 

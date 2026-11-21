@@ -2,7 +2,7 @@ package;
 
 import flixel.FlxGame;
 import openfl.display.Sprite;
-import states.PlayState;
+import states.MainMenuState;
 
 class Main extends Sprite
 {
@@ -10,6 +10,6 @@ class Main extends Sprite
 	{
 		super();
 		Global.loadLevels();
-		addChild(new FlxGame(0, 0, PlayState));
+		addChild(new FlxGame(0, 0, MainMenuState));
 	}
 }

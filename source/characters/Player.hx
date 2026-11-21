@@ -1,14 +1,12 @@
 package characters;
 
 import collision.TerrainPhysics;
+import eispinguin.EPSprite;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
-class Player extends FlxSprite
+class Player extends EPSprite
 {
-    // Physics
-    public var physics:TerrainPhysics;
-
     // Movement
     public var walkSpeed:Float = 170;
     public var groundAcceleration:Float = 900;
@@ -20,25 +18,13 @@ class Player extends FlxSprite
     var jumpWasHeld:Bool = false;
     var jumpCutApplied:Bool = false;
 
-    // Velocities
-    var velocityX:Float = 0;
-    var velocityY:Float = 0;
-
     // Timers (don't change!)
     var coyoteTimer:Float = 0;
     var jumpBufferTimer:Float = 0;
 
-    // Other things
-    public var onGround:Bool = false;
-    public var touchingWall:Bool = false;
-    public var hittingCeiling:Bool = false;
-    var walkingIntoWall:Bool = false;
-
     public function new(x:Float, y:Float, physics:TerrainPhysics)
     {
-        super(x, y);
-
-        this.physics = physics;
+        super(x, y, physics);
 
         loadGraphic("assets/images/characters/eispe.png", true, 15, 25);
         animation.add("stand", [0], 15.0, false);
@@ -62,6 +48,11 @@ class Player extends FlxSprite
         super.update(elapsed);
 
         // Movement below!
+
+        if (y > Global.PS.terrain.height)
+        {
+            killPlayer();
+        }
 
         var direction:Int = 0;
 
@@ -166,8 +157,6 @@ class Player extends FlxSprite
             coyoteTimer = coyoteDuration;
         }
 
-        velocity.set(0, 0);
-
         // Animation below!
 
         if (onGround)
@@ -187,28 +176,8 @@ class Player extends FlxSprite
         }
     }
 
-    // Acceleration and deceleration
-    function approach(current:Float, target:Float, amount:Float):Float
+    function killPlayer()
     {
-        if (current < target)
-        {
-            return Math.min(current + amount, target);
-        }
-
-        if (current > target)
-        {
-            return Math.max(current - amount, target);
-        }
-
-        return target;
-    }
-
-    // Just so the animation doesn't restart without a reason
-    function playAnimation(animation:String)
-    {
-        if (this.animation.name != animation)
-        {
-            this.animation.play(animation);
-        }
+        FlxG.resetState();
     }
 }

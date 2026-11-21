@@ -1,7 +1,6 @@
 
 package editor;
 
-import flixel.util.FlxGradient;
 import collision.GroundPiece;
 import collision.TerrainManager;
 import editor.LevelDocument;
@@ -11,6 +10,7 @@ import flixel.FlxState;
 import flixel.system.FlxAssets;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import flixel.util.FlxGradient;
 import lime.ui.FileDialog;
 import lime.ui.FileDialogType;
 import openfl.Assets;
@@ -139,7 +139,7 @@ class LevelEditorState extends FlxState
         add(dragPreview);
 
         playerMarker = new FlxSprite();
-        playerMarker.loadGraphic("assets/images/editor/player.png");
+        playerMarker.loadGraphic("assets/images/engine/editor/player.png");
 
         add(playerMarker);
 

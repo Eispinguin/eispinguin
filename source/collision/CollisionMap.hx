@@ -30,9 +30,9 @@ class CollisionMap
 
     public inline function getPixel(x:Int, y:Int):Int
     {
-        if (x < 0 || y < 0 || x >= width || y >= height)
+        if (x < 0 || x >= width)
         {
-            return outsideIsSolid ? solid : empty;
+            return outsideIsSolid ? solid : empty; // maybe make this be "return true" or whatever? later!
         }
 
         return data.get(y * width + x);
