@@ -91,6 +91,6 @@ class LevelDocument
             pieceData.push({id: piece.id, x: piece.x, y: piece.y});
         }
 
-        return Json.stringify({width: width, height: height, player: {x: playerX, y: playerY}, music: music, pieces: pieceData}, null, "  ");
+        return Json.stringify({width: width, height: height, player: {x: playerX, y: playerY}, music: music, pieces: pieceData, gradientTop: gradientTop, gradientBottom: gradientBottom}, null, "  ");
     }
 }
