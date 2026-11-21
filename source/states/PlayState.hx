@@ -1,5 +1,8 @@
 package states;
 
+import flixel.util.FlxColor;
+import flixel.FlxSprite;
+import flixel.util.FlxGradient;
 import characters.Player;
 import collision.GroundPiece;
 import collision.TerrainManager;
@@ -28,6 +31,11 @@ class PlayState extends FlxState
 	var editorCurrentFilePath:Null<String>;
 
 	var levelPath:String;
+
+	var levelGradient:FlxSprite;
+
+    var gradientTop:String = "";
+    var gradientBottom:String = "";
 
 	public function new(?levelPath:String, ?playtestJson:String, ?editorLevelPath:String, ?editorSavePath:String, ?editorHistory:EditorHistory, ?editorCurrentFilePath:String)
 	{
@@ -63,6 +71,8 @@ class PlayState extends FlxState
 
 			pieces.push(new GroundPiece(definition.bitmap, placement.x, placement.y, definition.type, definition.collisionMask));
 		}
+
+		addLevelGradient(document);
 
 		terrain.addPieces(pieces);
 
@@ -112,4 +122,19 @@ class PlayState extends FlxState
 		}
 		#end
 	}
+
+	function addLevelGradient(document:LevelDocument)
+    {
+        var parsedTop = FlxColor.fromString(document.gradientTop);
+        var parsedBottom = FlxColor.fromString(document.gradientBottom);
+
+        var topColor:FlxColor = parsedTop == null ? 0x8080FF : cast parsedTop;
+        var bottomColor:FlxColor = parsedBottom == null ? FlxColor.WHITE : cast parsedBottom;
+
+        levelGradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [topColor, bottomColor], 1, 90);
+
+        levelGradient.scrollFactor.set(0, 0);
+
+        add(levelGradient);
+    }
 }

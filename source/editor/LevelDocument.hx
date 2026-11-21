@@ -26,6 +26,9 @@ class LevelDocument
 
     public var music:String = "";
 
+    public var gradientTop:String = "0x8080FF";
+    public var gradientBottom:String = "0xFFFFFF";
+
     public var pieces:Array<LevelPiecePlacement> = [];
 
     public function new(width:Int, height:Int)
@@ -51,6 +54,19 @@ class LevelDocument
         if (music != null) 
         {
             document.music = Std.string(music);
+        }
+
+        var gradientTop:Dynamic = Reflect.field(root, "gradientTop");
+        var gradientBottom:Dynamic = Reflect.field(root, "gradientBottom");
+
+        if (gradientTop != null)
+        {
+            document.gradientTop = Std.string(gradientTop);
+        }
+
+        if (gradientBottom != null)
+        {
+            document.gradientBottom = Std.string(gradientBottom);
         }
 
         var entries:Array<Dynamic> = cast Reflect.field(root, "pieces");

@@ -14,6 +14,9 @@ typedef TerrainLevel =
     var playerY:Float;
 
     var music:String;
+
+    var gradientBottom:String;
+    var gradientTop:String;
 }
 
 class TerrainLevelLoader
@@ -33,6 +36,6 @@ class TerrainLevelLoader
 
         terrain.addPieces(pieces);
 
-        return {terrain: terrain, playerX: document.playerX, playerY: document.playerY, music: document.music};
+        return {terrain: terrain, playerX: document.playerX, playerY: document.playerY, music: document.music, gradientTop: document.gradientTop, gradientBottom: document.gradientBottom};
     }
 }

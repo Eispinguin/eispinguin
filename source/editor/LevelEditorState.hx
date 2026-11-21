@@ -1,6 +1,7 @@
 
 package editor;
 
+import flixel.util.FlxGradient;
 import collision.GroundPiece;
 import collision.TerrainManager;
 import editor.LevelDocument;
@@ -20,7 +21,8 @@ import util.GroundPieceDefinition;
 class LevelEditorState extends FlxState
 {
     static inline var resizeStep:Int = 64;
-    static inline var minLevelSize:Int = 64;
+    static inline var minLevelSize:Int = 800;
+    static inline var minLevelHeight:Int = 600;
     static inline var maxLevelSize:Int = 4096;
 
     static inline var playerWidth:Int = 8;
@@ -80,6 +82,11 @@ class LevelEditorState extends FlxState
 
     var dragChanged:Bool = false;
 
+    var levelGradient:FlxSprite;
+
+    var displayedGradientTop:String = "";
+    var displayedGradientBottom:String = "";
+
     public function new(levelAssetPath:String, savePath:String, ?initialJson:String, ?existingHistory:EditorHistory, ?currentFilePath:String)
     {
         super();
@@ -121,6 +128,8 @@ class LevelEditorState extends FlxState
         rebuildTerrain();
 
         add(terrain.sprite);
+
+        updateLevelGradient();
 
         dragPreview = new FlxSprite();
 
@@ -352,8 +361,17 @@ class LevelEditorState extends FlxState
 
     function resizeLevel(deltaWidth:Int, deltaHeight:Int)
     {
+        var requestedHeight = document.height + deltaHeight;
+
+        if (deltaHeight < 0 && requestedHeight < minLevelHeight)
+        {
+            trace("Levels can't be shorter than " + minLevelHeight + " pixels!");
+            
+            return;
+        }
+
         var newWidth = Std.int(Math.max(minLevelSize, Math.min(maxLevelSize, document.width + deltaWidth)));
-        var newHeight = Std.int(Math.max(minLevelSize, Math.min(maxLevelSize, document.height + deltaHeight)));
+        var newHeight = Std.int(Math.max(minLevelSize, Math.min(maxLevelSize, requestedHeight)));
 
         if (newWidth == document.width && newHeight == document.height)
         {
@@ -370,18 +388,26 @@ class LevelEditorState extends FlxState
         updateHUD();
     }
 
-    function syncTerrainToDocument():Void
+    function syncTerrainToDocument()
     {
+        updateLevelGradient();
+
         if (terrain.width != document.width || terrain.height != document.height)
         {
             var oldSprite = terrain.sprite;
+            var terrainIndex = members.indexOf(oldSprite);
 
             remove(oldSprite, true);
             terrain.destroy();
 
             terrain = new TerrainManager(document.width, document.height);
 
-            insert(0, terrain.sprite);
+            if (terrainIndex < 0)
+            {
+                terrainIndex = 0;
+            }
+
+            insert(terrainIndex, terrain.sprite);
         }
 
         rebuildTerrain();
@@ -875,7 +901,7 @@ class LevelEditorState extends FlxState
         "\nQ/E: Switch Pieces, Delete: Remove, Ctrl+Z/Y: Undo/Redo" +
         "\nCtrl+S: Save, ENTER: Playtest" +
         "\nArrows: Camera, Shift+Arrows: Fast Camera" +
-        "\nCtrl+Shift+Arrows: Resize (32px)" +
+        "\nCtrl+Shift+Arrows: Resize (32px) (Up = Decrease, Down = Increase)" +
         "\nCtrl+O: Open, Ctrl+S: Save, Ctrl+Shift+S: Save As";
     }
 
@@ -1081,5 +1107,33 @@ class LevelEditorState extends FlxState
         #else
         trace("File saving requires a desktop build! How did you even get here?");
         #end
+    }
+
+    function updateLevelGradient()
+    {
+        if (levelGradient != null && displayedGradientBottom == document.gradientBottom && displayedGradientTop == document.gradientTop)
+        {
+            return;
+        }
+
+        if (levelGradient != null)
+        {
+            remove(levelGradient, true);
+        }
+
+        var parsedTop = FlxColor.fromString(document.gradientTop);
+        var parsedBottom = FlxColor.fromString(document.gradientBottom);
+
+        var topColor:FlxColor = parsedTop == null ? 0x45C4FF : cast parsedTop;
+        var bottomColor:FlxColor = parsedBottom == null ? FlxColor.WHITE : cast parsedBottom;
+
+        levelGradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [topColor, bottomColor], 1, 90);
+
+        levelGradient.scrollFactor.set(0, 0);
+
+        displayedGradientTop = document.gradientTop;
+        displayedGradientBottom = document.gradientBottom;
+
+        insert(0, levelGradient);
     }
 }
