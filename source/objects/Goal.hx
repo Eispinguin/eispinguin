@@ -1,6 +1,7 @@
 package objects;
 
 import characters.Player;
+import editor.LevelEditorState;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import states.MainMenuState;
@@ -12,19 +13,28 @@ class Goal extends FlxSprite
     {
         super(x, y);
 
-        loadGraphic("assets/images/objects/portal.png");
+        loadGraphic("assets/images/objects/goal/portal-snow.png");
 
         setSize(70, 163);
         offset.set(33, 0);
     }
 
-    public function reach(eispi:Player)
+    public function reach()
     {
-        if (solid)
+        if (!solid)
         {
-            solid = false;
-            Global.currentLevel += 1;
+            return;
         }
+
+        solid = false;
+
+        if (Global.PS.editorPlaytest)
+        {
+            FlxG.switchState(() -> new LevelEditorState(Global.PS.editorLevelPath, Global.PS.editorSavePath, Global.PS.editorPlaytestJson, Global.PS.editorHistory, Global.PS.editorCurrentFilePath));
+            return;
+        }
+
+        Global.currentLevel += 1;
 
         if (Global.currentLevel >= Global.levels.length)
         {

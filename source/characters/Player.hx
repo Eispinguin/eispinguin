@@ -1,6 +1,7 @@
 package characters;
 
 import collision.TerrainPhysics;
+import editor.LevelEditorState;
 import eispinguin.EPSprite;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -178,6 +179,12 @@ class Player extends EPSprite
 
     function killPlayer()
     {
+        if (Global.PS.editorPlaytest)
+        {
+            FlxG.switchState(() -> new LevelEditorState(Global.PS.editorLevelPath, Global.PS.editorSavePath, Global.PS.editorPlaytestJson, Global.PS.editorHistory, Global.PS.editorCurrentFilePath));
+            return;
+        }
+        
         FlxG.resetState();
     }
 }

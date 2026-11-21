@@ -151,7 +151,16 @@
       "id": "blue_rocks_floor"
     }
   ],
+  "objects": [
+    {
+      "x": 2024,
+      "y": 52,
+      "id": "goal"
+    }
+  ],
+  "gradientBottom": "0xFFFFFF",
   "width": 2240,
+  "gradientTop": "0x8080FF",
   "height": 600,
   "music": "assets/music/antarctic_snow.ogg",
   "player": {

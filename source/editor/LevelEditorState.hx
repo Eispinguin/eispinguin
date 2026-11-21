@@ -7,7 +7,6 @@ import editor.LevelDocument;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.system.FlxAssets;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
@@ -87,6 +86,19 @@ class LevelEditorState extends FlxState
     var displayedGradientTop:String = "";
     var displayedGradientBottom:String = "";
 
+    var objectLibrary:LevelObjectLibrary;
+
+    var selectedObjectIndex:Int = 0;
+    var selectedObjectPlacementIndex:Int = -1;
+
+    var objectPaletteBackground:FlxSprite;
+    var objectPaletteText:FlxText;
+    var objectPalettePreview:FlxSprite;
+
+    var objectSprites:Array<FlxSprite> = [];
+
+    var draggingObject:Bool = false;
+
     public function new(levelAssetPath:String, savePath:String, ?initialJson:String, ?existingHistory:EditorHistory, ?currentFilePath:String)
     {
         super();
@@ -110,6 +122,7 @@ class LevelEditorState extends FlxState
 
         groundpieceLibrary = GroundPieceLibrary.load("assets/data/groundpieces.json");
         musicLibrary = MusicLibrary.load("assets/data/music.json");
+        objectLibrary = LevelObjectLibrary.load("assets/data/objects.json");
 
         var json = initialJson != null ? initialJson : Assets.getText(levelAssetPath);
 
@@ -138,6 +151,8 @@ class LevelEditorState extends FlxState
 
         add(dragPreview);
 
+        rebuildObjects();
+
         playerMarker = new FlxSprite();
         playerMarker.loadGraphic("assets/images/engine/editor/player.png");
 
@@ -155,8 +170,8 @@ class LevelEditorState extends FlxState
 
         var paletteX = Math.max(4, FlxG.width - paletteWidth - 8);
 
-        paletteBackground = new FlxSprite(paletteX, 42);
-        paletteBackground.makeGraphic(paletteWidth, paletteHeight, FlxColor.fromRGB(25, 31, 42, 230), true);
+        paletteBackground = new FlxSprite(paletteX, 200);
+        paletteBackground.makeGraphic(paletteWidth, paletteHeight, 0x7F58B4FF, true);
         paletteBackground.scrollFactor.set(0, 0);
 
         add(paletteBackground);
@@ -171,10 +186,27 @@ class LevelEditorState extends FlxState
 
         add(paletteText);
 
+        objectPaletteBackground = new FlxSprite(8, 200);
+        objectPaletteBackground.makeGraphic(paletteWidth, paletteHeight, 0x7F58B4FF, true);
+        objectPaletteBackground.scrollFactor.set(0, 0);
+
+        add(objectPaletteBackground);
+
+        objectPalettePreview = new FlxSprite();
+        objectPalettePreview.scrollFactor.set(0, 0);
+
+        add(objectPalettePreview);
+
+        objectPaletteText = new FlxText(16, 206, paletteWidth - 16, "", 10);
+        objectPaletteText.scrollFactor.set(0, 0);
+
+        add(objectPaletteText);
+
         updatePlayerMarker();
         refreshSelection();
 
         updatePalette();
+        updateObjectPalette();
         updateHUD();
 
         updateCameraBounds();
@@ -282,6 +314,11 @@ class LevelEditorState extends FlxState
             setTool("player");
         }
 
+        if (FlxG.keys.justPressed.FOUR)
+        {
+            setTool("object");
+        }
+
         if (FlxG.keys.justPressed.Q)
         {
             cycleGroundpiece(-1);
@@ -290,6 +327,16 @@ class LevelEditorState extends FlxState
         if (FlxG.keys.justPressed.E)
         {
             cycleGroundpiece(1);
+        }
+
+        if (FlxG.keys.justPressed.Z)
+        {
+            cycleObject(-1);
+        }
+
+        if (FlxG.keys.justPressed.X)
+        {
+            cycleObject(1);
         }
 
         if (FlxG.keys.justPressed.DELETE)
@@ -411,6 +458,7 @@ class LevelEditorState extends FlxState
         }
 
         rebuildTerrain();
+        rebuildObjects();
         updateCameraBounds();
     }
 
@@ -432,33 +480,38 @@ class LevelEditorState extends FlxState
                     placeGroundpiece(mx, my);
 
                 case "select":
-                    selectGroundpiece(mx, my);
-
-                    if (selectedPlacementIndex >= 0)
+                    if (selectObject(mx, my))
                     {
-                        var placement = document.pieces[selectedPlacementIndex];
-                        var definition = groundpieceLibrary.getById(placement.id);
+                        startObjectDrag(mx, my);
+                    }
+                    else
+                    {
+                        selectGroundpiece(mx, my);
 
-                        dragStartX = placement.x;
-                        dragStartY = placement.y;
+                        if (selectedPlacementIndex >= 0)
+                        {
+                            var placement = document.pieces[selectedPlacementIndex];
+                            var definition = groundpieceLibrary.getById(placement.id);
 
-                        dragTargetX = placement.x;
-                        dragTargetY = placement.y;
+                            dragStartX = placement.x;
+                            dragStartY = placement.y;
 
-                        dragOffsetX = mx - placement.x;
-                        dragOffsetY = my - placement.y;
+                            dragTargetX = placement.x;
+                            dragTargetY = placement.y;
 
-                        draggingPiece = true;
-                        dragChanged = false;
+                            dragOffsetX = mx - placement.x;
+                            dragOffsetY = my - placement.y;
 
-                        dragPreview.loadGraphic(definition.bitmap, false, 0, 0, true);
+                            draggingPiece = true;
+                            dragChanged = false;
 
-                        dragPreview.alpha = 0.5;
+                            dragPreview.loadGraphic(definition.bitmap, false, 0, 0, true);
 
-                        dragPreview.x = placement.x;
-                        dragPreview.y = placement.y;
-
-                        dragPreview.visible = true;
+                            dragPreview.alpha = 0.5;
+                            dragPreview.x = placement.x;
+                            dragPreview.y = placement.y;
+                            dragPreview.visible = true;
+                        }
                     }
 
                 case "player":
@@ -469,6 +522,9 @@ class LevelEditorState extends FlxState
                     dragOffsetY = playerMarker.height / 2;
 
                     updatePlayerDrag(mx, my);
+                
+                case "object":
+                    placeObject(mx, my);
             }
         }
 
@@ -482,6 +538,11 @@ class LevelEditorState extends FlxState
             if (draggingPlayer)
             {
                 updatePlayerDrag(mx, my);
+            }
+
+            if (draggingObject)
+            {
+                updateObjectDrag(mx, my);
             }
         }
 
@@ -505,14 +566,24 @@ class LevelEditorState extends FlxState
                     commitEdit(false);
                 }
             }
+
+            if (draggingObject)
+            {
+                updateObjectDrag(mx, my);
+                finishObjectDrag();
+            }
         }
     }
 
     function mouseOverPalette():Bool
     {
-        var x = FlxG.width - paletteWidth - 8;
+        var x = FlxG.mouse.viewX;
+        var y = FlxG.mouse.viewY;
 
-        return FlxG.mouse.viewX >= x && FlxG.mouse.viewX <= x + paletteWidth && FlxG.mouse.viewY >= 42 && FlxG.mouse.viewY <= 42 + paletteHeight;
+        var overGroundpiecePalette = x >= FlxG.width - paletteWidth - 8 && x <= FlxG.width - 8 && y >= 42 && y <= 42 + paletteHeight;
+        var overObjectPalette = x >= 8 && x <= 8 + paletteWidth && y >= 200 && y <= 200 + paletteHeight;
+
+        return overGroundpiecePalette || overObjectPalette;
     }
 
     function placeGroundpiece(x:Int, y:Int)
@@ -530,9 +601,27 @@ class LevelEditorState extends FlxState
         commitEdit();
     }
 
+    function placeObject(x:Int, y:Int)
+    {
+        if (objectLibrary.definitions.length == 0)
+        {
+            return;
+        }
+
+        var definition = objectLibrary.definitions[selectedObjectIndex];
+
+        document.objects.push(new ObjectPlacement(definition.id, x, y));
+
+        selectedObjectPlacementIndex = document.objects.length - 1;
+        selectedPlacementIndex = -1;
+
+        commitEdit();
+    }
+
     function selectGroundpiece(x:Int, y:Int)
     {
         selectedPlacementIndex = -1;
+        selectedObjectPlacementIndex = -1;
 
         for (i in 0...document.pieces.length)
         {
@@ -561,6 +650,40 @@ class LevelEditorState extends FlxState
         }
 
         refreshSelection();
+    }
+
+    function selectObject(x:Int, y:Int):Bool
+    {
+        selectedObjectPlacementIndex = -1;
+        selectedPlacementIndex = -1;
+
+        for (i in 0...document.objects.length)
+        {
+            var index = document.objects.length - 1 - i;
+            var placement = document.objects[index];
+            var definition = objectLibrary.getById(placement.id);
+
+            var localX = x - placement.x;
+            var localY = y - placement.y;
+
+            if (localX < 0 || localY < 0 || localX >= definition.bitmap.width || localY >= definition.bitmap.height)
+            {
+                continue;
+            }
+
+            var pixel = definition.bitmap.getPixel32(localX, localY);
+            var alpha = (pixel >>> 24) & 0xFF;
+
+            if (alpha > 0)
+            {
+                selectedObjectPlacementIndex = index;
+                break;
+            }
+        }
+
+        refreshSelection();
+
+        return selectedObjectPlacementIndex >= 0;
     }
 
     function updatePieceDrag(mouseX:Int, mouseY:Int)
@@ -603,6 +726,91 @@ class LevelEditorState extends FlxState
         updatePlayerMarker();
     }
 
+    function startObjectDrag(mouseX:Int, mouseY:Int)
+    {
+        var placement = document.objects[selectedObjectPlacementIndex];
+        var definition = objectLibrary.getById(placement.id);
+
+        dragStartX = placement.x;
+        dragStartY = placement.y;
+
+        dragTargetX = placement.x;
+        dragTargetY = placement.y;
+
+        dragOffsetX = mouseX - placement.x;
+        dragOffsetY = mouseY - placement.y;
+
+        draggingObject = true;
+        dragChanged = false;
+
+        dragPreview.loadGraphic(definition.bitmap, false, 0, 0, true);
+
+        dragPreview.alpha = 0.5;
+        dragPreview.x = placement.x;
+        dragPreview.y = placement.y;
+        dragPreview.visible = true;
+
+        if (selectedObjectPlacementIndex < objectSprites.length)
+        {
+            objectSprites[selectedObjectPlacementIndex].visible = false;
+        }
+    }
+
+    function updateObjectDrag(mouseX:Int, mouseY:Int)
+    {
+        if (selectedObjectPlacementIndex < 0 || selectedObjectPlacementIndex >= document.objects.length)
+        {
+            return;
+        }
+
+        var newX = Std.int(Math.floor(mouseX - dragOffsetX));
+        var newY = Std.int(Math.floor(mouseY - dragOffsetY));
+
+        dragTargetX = newX;
+        dragTargetY = newY;
+
+        dragChanged = dragTargetX != dragStartX || dragTargetY != dragStartY;
+
+        dragPreview.x = dragTargetX;
+        dragPreview.y = dragTargetY;
+
+        selectionOutline.x = dragTargetX;
+        selectionOutline.y = dragTargetY;
+    }
+
+    function finishObjectDrag()
+    {
+        draggingObject = false;
+        dragPreview.visible = false;
+
+        if (!dragChanged)
+        {
+            if (selectedObjectPlacementIndex >= 0 && selectedObjectPlacementIndex < objectSprites.length)
+            {
+                objectSprites[selectedObjectPlacementIndex].visible = true;
+            }
+
+            updateSelectionPosition();
+            return;
+        }
+
+        if (selectedObjectPlacementIndex < 0 || selectedObjectPlacementIndex >= document.objects.length)
+        {
+            return;
+        }
+
+        var placement = document.objects[selectedObjectPlacementIndex];
+
+        placement.x = dragTargetX;
+        placement.y = dragTargetY;
+
+        rebuildObjects();
+
+        commitEdit(false);
+
+        dragChanged = false;
+    }
+
     function updatePlayerMarker()
     {
         playerMarker.x = document.playerX;
@@ -613,6 +821,17 @@ class LevelEditorState extends FlxState
     {
         if (selectedPlacementIndex < 0 || selectedPlacementIndex >= document.pieces.length)
         {
+            return;
+        }
+
+        if (selectedObjectPlacementIndex >= 0 && selectedObjectPlacementIndex < document.objects.length)
+        {
+            document.objects.splice(selectedObjectPlacementIndex, 1);
+
+            selectedObjectPlacementIndex = -1;
+
+            commitEdit();
+
             return;
         }
 
@@ -628,6 +847,7 @@ class LevelEditorState extends FlxState
 
         draggingPiece = false;
         draggingPlayer = false;
+        draggingObject = false;
 
         updateHUD();
     }
@@ -654,6 +874,30 @@ class LevelEditorState extends FlxState
         }
 
         updatePalette();
+    }
+
+    function cycleObject(direction:Int)
+    {
+        var count = objectLibrary.definitions.length;
+
+        if (count == 0)
+        {
+            return;
+        }
+
+        selectedObjectIndex += direction;
+
+        if (selectedObjectIndex < 0)
+        {
+            selectedObjectIndex = count - 1;
+        }
+
+        if (selectedObjectIndex >= count)
+        {
+            selectedObjectIndex = 0;
+        }
+
+        updateObjectPalette();
     }
 
     function updatePalette()
@@ -706,9 +950,58 @@ class LevelEditorState extends FlxState
 
         palettePreview.x = FlxG.width - previewWidth - 8 + (previewWidth - palettePreview.width) / 2;
 
-        palettePreview.y = 42 + paletteHeight - palettePreview.height - 8;
+        palettePreview.y = 200 + paletteHeight - palettePreview.height - 8;
 
         palettePreview.visible = true;
+    }
+
+    function updateObjectPalette()
+    {
+        var definitions = objectLibrary.definitions;
+
+        if (definitions.length == 0)
+        {
+            objectPaletteText.text = "Objects: \nNo objects loaded";
+            objectPalettePreview.visible = false;
+            return;
+        }
+
+        var lines:Array<String> = [];
+
+        lines.push("Objects");
+        lines.push("Z / X to cycle through / select");
+        lines.push("");
+
+        for (i in 0...definitions.length)
+        {
+            var definition = definitions[i];
+
+            var marker = i == selectedObjectIndex ? "> " : "  ";
+
+            lines.push(marker + definition.name);
+        }
+
+        objectPaletteText.text = lines.join("\n");
+
+        var selectedDefinition = definitions[selectedObjectIndex];
+
+        objectPalettePreview.loadGraphic(selectedDefinition.bitmap, false, 0, 0, true);
+
+        var maxWidth = paletteWidth - 20;
+        var maxHeight = 55;
+
+        var scale = Math.min(1, Math.min(maxWidth / selectedDefinition.bitmap.width, maxHeight / selectedDefinition.bitmap.height));
+
+        var previewWidth = Std.int(selectedDefinition.bitmap.width * scale);
+        var previewHeight = Std.int(selectedDefinition.bitmap.height * scale);
+
+        objectPalettePreview.setGraphicSize(previewWidth, previewHeight);
+        objectPalettePreview.updateHitbox();
+
+        objectPalettePreview.x = 8 + (paletteWidth - previewWidth) / 2;
+        objectPalettePreview.y = 200 + paletteHeight - previewHeight - 8;
+
+        objectPalettePreview.visible = true;
     }
 
     function refreshSelection()
@@ -718,23 +1011,34 @@ class LevelEditorState extends FlxState
             return;
         }
 
-        if (selectedPlacementIndex < 0 || selectedPlacementIndex >= document.pieces.length)
+        var w:Int;
+        var h:Int;
+
+        if (selectedObjectPlacementIndex >= 0 && selectedObjectPlacementIndex < document.objects.length)
+        {
+            var placement = document.objects[selectedObjectPlacementIndex];
+            var definition = objectLibrary.getById(placement.id);
+
+            w = definition.bitmap.width;
+            h = definition.bitmap.height;
+        }
+        else if (selectedPlacementIndex >= 0 && selectedPlacementIndex < document.pieces.length)
+        {
+            var placement = document.pieces[selectedPlacementIndex];
+            var definition = groundpieceLibrary.getById(placement.id);
+
+            w = definition.bitmap.width;
+            h = definition.bitmap.height;
+        }
+        else
         {
             selectionOutline.visible = false;
             return;
         }
 
-        var placement = document.pieces[selectedPlacementIndex];
-
-        var definition = groundpieceLibrary.getById(placement.id);
-
-        var w = definition.bitmap.width;
-        var h = definition.bitmap.height;
-
         selectionOutline.makeGraphic(w, h, FlxColor.TRANSPARENT, true);
 
         var pixels = selectionOutline.pixels;
-
         var thickness = 2;
 
         pixels.fillRect(new Rectangle(0, 0, w, thickness), FlxColor.CYAN);
@@ -751,15 +1055,20 @@ class LevelEditorState extends FlxState
 
     function updateSelectionPosition()
     {
-        if (selectedPlacementIndex < 0 || selectedPlacementIndex >= document.pieces.length)
+        if (selectedObjectPlacementIndex >= 0 && selectedObjectPlacementIndex < document.objects.length)
         {
-            return;
+            var placement = document.objects[selectedObjectPlacementIndex];
+
+            selectionOutline.x = placement.x;
+            selectionOutline.y = placement.y;
         }
+        else if (selectedPlacementIndex >= 0 && selectedPlacementIndex < document.pieces.length)
+        {
+            var placement = document.pieces[selectedPlacementIndex];
 
-        var placement = document.pieces[selectedPlacementIndex];
-
-        selectionOutline.x = placement.x;
-        selectionOutline.y = placement.y;
+            selectionOutline.x = placement.x;
+            selectionOutline.y = placement.y;
+        }
     }
 
     function cycleMusic(direction:Int)
@@ -817,6 +1126,37 @@ class LevelEditorState extends FlxState
         }
 
         terrain.replacePieces(pieces);
+    }
+
+    function rebuildObjects():Void
+    {
+        for (sprite in objectSprites)
+        {
+            remove(sprite, true);
+        }
+
+        objectSprites = [];
+
+        var insertIndex = members.indexOf(dragPreview);
+
+        if (insertIndex < 0)
+        {
+            insertIndex = members.length;
+        }
+
+        for (placement in document.objects)
+        {
+            var definition = objectLibrary.getById(placement.id);
+
+            var sprite = new FlxSprite(placement.x, placement.y);
+
+            sprite.loadGraphic(definition.bitmap, false, 0, 0, true);
+
+            objectSprites.push(sprite);
+
+            insert(insertIndex, sprite);
+            insertIndex += 1;
+        }
     }
 
     function commitEdit(rebuild:Bool = true)
@@ -889,6 +1229,13 @@ class LevelEditorState extends FlxState
             pieceName = groundpieceLibrary.definitions[selectedPieceIndex].name;
         }
 
+        var objectName = "None";
+
+        if (objectLibrary.definitions.length > 0)
+        {
+            objectName = objectLibrary.definitions[selectedObjectIndex].name;
+        }
+
         var musicName = "No Music";
 
         if (musicLibrary.tracks.length > 0)
@@ -897,8 +1244,8 @@ class LevelEditorState extends FlxState
         }
 
         hud.text = "Tool: " + tool + " | Piece: " + pieceName + " | Music: " + musicName +
-        "\n1: Place, 2: Select/Drag, 3: Move Player" +
-        "\nQ/E: Switch Pieces, Delete: Remove, Ctrl+Z/Y: Undo/Redo" +
+        "\n1: Place Ground, 2: Select/Drag, 3: Move Player, 4: Place Object" +
+        "\nQ/E: Switch Pieces, Z/X: Switch Objects, Delete: Remove, Ctrl+Z/Y: Undo/Redo" +
         "\nCtrl+S: Save, ENTER: Playtest" +
         "\nArrows: Camera, Shift+Arrows: Fast Camera" +
         "\nCtrl+Shift+Arrows: Resize (32px) (Up = Decrease, Down = Increase)" +

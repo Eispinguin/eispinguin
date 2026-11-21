@@ -7,11 +7,15 @@ import collision.TerrainPhysics;
 import editor.EditorHistory;
 import editor.LevelDocument;
 import editor.LevelEditorState;
+import editor.LevelObjectLibrary;
 import flixel.FlxG;
+import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxState;
+import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
+import objects.Goal;
 import openfl.Assets;
 import util.GroundPieceDefinition;
 
@@ -22,12 +26,14 @@ class PlayState extends FlxState
 
 	var player:Player;
 
-	var editorPlaytestJson:Null<String>;
-	var editorLevelPath:Null<String>;
-	var editorSavePath:Null<String>;
-	var editorHistory:Null<editor.EditorHistory>;
-	var isEditorPlaytest:Bool = false;
-	var editorCurrentFilePath:Null<String>;
+	public var entities:FlxTypedGroup<FlxObject>;
+
+	public var editorPlaytestJson:Null<String>;
+	public var editorLevelPath:Null<String>;
+	public var editorSavePath:Null<String>;
+	public var editorHistory:Null<editor.EditorHistory>;
+	public var editorPlaytest:Bool = false;
+	public var editorCurrentFilePath:Null<String>;
 
 	var levelPath:String;
 
@@ -49,7 +55,7 @@ class PlayState extends FlxState
 
 		this.editorCurrentFilePath = editorCurrentFilePath;
 
-		this.isEditorPlaytest = playtestJson != null;
+		this.editorPlaytest = playtestJson != null;
 
 		this.levelPath = levelPath == null ? Global.levels[Global.currentLevel] : levelPath;
 	}
@@ -59,6 +65,7 @@ class PlayState extends FlxState
 		super.create();
 
         var groundpieceLibrary = GroundPieceLibrary.load("assets/data/groundpieces.json");
+		var objectLibrary = LevelObjectLibrary.load("assets/data/objects.json");
 		var json = editorPlaytestJson != null ? editorPlaytestJson : Assets.getText(levelPath);
 		var document = LevelDocument.fromJson(json);
 
@@ -81,8 +88,25 @@ class PlayState extends FlxState
 
 		terrainPhysics = new TerrainPhysics(terrain);
 
+		entities = new FlxTypedGroup<FlxObject>();
+
+		for (placement in document.objects)
+		{
+			var definition = objectLibrary.getById(placement.id);
+
+			switch (definition.id)
+			{
+				case "goal":
+					entities.add(new Goal(placement.x + 33, placement.y));
+
+				default:
+					trace("Object unimplemented: " + placement.id);
+			}
+		}
+
 		player = new Player(document.playerX, document.playerY, terrainPhysics);
 
+		add(entities);
 		add(player);
 
 		FlxG.camera.follow(player, PLATFORMER, 1.0);
@@ -103,11 +127,21 @@ class PlayState extends FlxState
 	{
 		super.update(elapsed);
 
-		if (isEditorPlaytest && FlxG.keys.justPressed.ESCAPE)
+		if (editorPlaytest && FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.switchState(() -> new LevelEditorState(editorLevelPath, editorSavePath, editorPlaytestJson, editorHistory, editorCurrentFilePath));
 
 			return;
+		}
+
+		FlxG.overlap(player, entities, collideEntities);
+	}
+
+	function collideEntities(player:Player, entity:FlxObject)
+	{
+		if (Std.isOfType(entity, Goal))
+		{
+			(cast entity).reach(player);
 		}
 	}
 

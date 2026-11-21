@@ -1,8 +1,24 @@
 package editor;
 
+import flixel.FlxObject;
 import haxe.Json;
+import openfl.utils.Object;
 
 class LevelPiecePlacement
+{
+    public var id:String;
+    public var x:Int;
+    public var y:Int;
+
+    public function new(id:String, x:Int, y:Int)
+    {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class ObjectPlacement
 {
     public var id:String;
     public var x:Int;
@@ -30,6 +46,7 @@ class LevelDocument
     public var gradientBottom:String = "0xFFFFFF";
 
     public var pieces:Array<LevelPiecePlacement> = [];
+    public var objects:Array<ObjectPlacement> = [];
 
     public function new(width:Int, height:Int)
     {
@@ -79,18 +96,34 @@ class LevelDocument
             }
         }
 
+        var objectEntries:Array<Dynamic> = cast Reflect.field(root, "objects");
+
+        if (objectEntries != null)
+        {
+            for (entry in objectEntries)
+            {
+                document.objects.push(new ObjectPlacement(Std.string(entry.id), Std.int(entry.x), Std.int(entry.y)));
+            }
+        }
+
         return document;
     }
 
     public function toJson():String
     {
         var pieceData:Array<Dynamic> = [];
+        var objectData:Array<Dynamic> = [];
 
         for (piece in pieces)
         {
             pieceData.push({id: piece.id, x: piece.x, y: piece.y});
         }
 
-        return Json.stringify({width: width, height: height, player: {x: playerX, y: playerY}, music: music, pieces: pieceData, gradientTop: gradientTop, gradientBottom: gradientBottom}, null, "  ");
+        for (object in objects)
+        {
+            objectData.push({id: object.id, x: object.x, y: object.y});
+        }
+
+        return Json.stringify({width: width, height: height, player: {x: playerX, y: playerY}, music: music, pieces: pieceData, objects: objectData, gradientTop: gradientTop, gradientBottom: gradientBottom}, null, "  ");
     }
 }
