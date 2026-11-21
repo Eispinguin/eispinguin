@@ -26,6 +26,9 @@ class LevelDocument
 
     public var music:String = "";
 
+    public var gradientTop:String = "0x8080FF";
+    public var gradientBottom:String = "0xFFFFFF";
+
     public var pieces:Array<LevelPiecePlacement> = [];
 
     public function new(width:Int, height:Int)
@@ -53,6 +56,19 @@ class LevelDocument
             document.music = Std.string(music);
         }
 
+        var gradientTop:Dynamic = Reflect.field(root, "gradientTop");
+        var gradientBottom:Dynamic = Reflect.field(root, "gradientBottom");
+
+        if (gradientTop != null)
+        {
+            document.gradientTop = Std.string(gradientTop);
+        }
+
+        if (gradientBottom != null)
+        {
+            document.gradientBottom = Std.string(gradientBottom);
+        }
+
         var entries:Array<Dynamic> = cast Reflect.field(root, "pieces");
 
         if (entries != null)
@@ -75,6 +91,6 @@ class LevelDocument
             pieceData.push({id: piece.id, x: piece.x, y: piece.y});
         }
 
-        return Json.stringify({width: width, height: height, player: {x: playerX, y: playerY}, music: music, pieces: pieceData}, null, "  ");
+        return Json.stringify({width: width, height: height, player: {x: playerX, y: playerY}, music: music, pieces: pieceData, gradientTop: gradientTop, gradientBottom: gradientBottom}, null, "  ");
     }
 }
