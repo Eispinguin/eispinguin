@@ -4,24 +4,29 @@ import collision.TerrainPhysics;
 import editor.LevelEditorState;
 import eispinguin.EPSprite;
 import flixel.FlxG;
-import flixel.FlxSprite;
 
 class Player extends EPSprite
 {
     // Movement
-    public var walkSpeed:Float = 170;
+    public var walkSpeed:Float = 200;
     public var groundAcceleration:Float = 900;
     public var groundDeceleration:Float = 1100;
     public var jumpSpeed:Float = 500;
-    public var coyoteDuration:Float = 0.12;
-    public var jumpBufferDuration:Float = 0.12;
     public var jumpCutMultiplier:Float = 0.45;
     var jumpWasHeld:Bool = false;
     var jumpCutApplied:Bool = false;
+    var skidThreshold:Float = 150;
+    var skidMultiplier:Float = 0.75;
 
     // Timers (don't change!)
     var coyoteTimer:Float = 0;
     var jumpBufferTimer:Float = 0;
+    var skidTimer:Float = 0;
+
+    // Times
+    public var coyoteDuration:Float = 0.15;
+    public var jumpBufferDuration:Float = 0.2;
+    public var skidDuration:Float = 0.2;
 
     public function new(x:Float, y:Float, physics:TerrainPhysics)
     {
@@ -47,6 +52,11 @@ class Player extends EPSprite
     override public function update(elapsed:Float)
     {
         super.update(elapsed);
+
+        if (skidTimer > 0)
+        {
+            skidTimer -= elapsed;
+        }
 
         // Movement below!
 
@@ -83,6 +93,19 @@ class Player extends EPSprite
         var touchingGround = physics.isGrounded(this, 2);
 
         onGround = touchingGround;
+
+        if (onGround && ((velocityX > 0 && direction == -1) || (velocityX < 0 && direction == 1)))
+        {
+            if (Math.abs(velocityX) > skidThreshold)
+            {
+                velocityX = approach(velocityX, 0, (groundDeceleration * skidMultiplier) * elapsed);
+
+                if (skidTimer <= 0)
+                {
+                    skidTimer = skidDuration;
+                }
+            }
+        }
 
         if (touchingGround)
         {
@@ -158,17 +181,27 @@ class Player extends EPSprite
             coyoteTimer = coyoteDuration;
         }
 
-        // Animation below!
+        animate();
+    }
 
+    function animate()
+    {
         if (onGround)
         {
-            if (velocityX == 0 || walkingIntoWall)
+            if (skidTimer > 0)
             {
-                playAnimation("stand");
+                playAnimation("skid");
             }
-            else if (velocityX != 0 && !walkingIntoWall)
+            else
             {
-                playAnimation("walk");
+                if (velocityX == 0 || walkingIntoWall)
+                {
+                    playAnimation("stand");
+                }
+                else if (velocityX != 0 && !walkingIntoWall)
+                {
+                    playAnimation("walk");
+                }
             }
         }
         else
