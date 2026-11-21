@@ -17,8 +17,8 @@ class Player extends FlxSprite
     public var coyoteDuration:Float = 0.12;
     public var jumpBufferDuration:Float = 0.12;
     public var jumpCutMultiplier:Float = 0.45;
-    private var jumpWasHeld:Bool = false;
-    private var jumpCutApplied:Bool = false;
+    var jumpWasHeld:Bool = false;
+    var jumpCutApplied:Bool = false;
 
     // Velocities
     var velocityX:Float = 0;

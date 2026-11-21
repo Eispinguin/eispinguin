@@ -13,7 +13,7 @@ class CollisionMap
 
     public var outsideIsSolid:Bool = true;
 
-    private var data:Bytes;
+    var data:Bytes;
 
     public function new(width:Int, height:Int)
     {

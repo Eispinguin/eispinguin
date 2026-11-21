@@ -14,7 +14,7 @@ typedef TerrainMoveResult =
 
 class TerrainPhysics
 {
-    private static inline var epsilon:Float = 0.0001;
+    static inline var epsilon:Float = 0.0001;
 
     public var terrain(default, null):TerrainManager;
 

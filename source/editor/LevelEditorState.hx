@@ -14,6 +14,7 @@ import lime.ui.FileDialog;
 import lime.ui.FileDialogType;
 import openfl.Assets;
 import openfl.geom.Rectangle;
+import states.PlayState;
 import util.GroundPieceDefinition;
 
 class LevelEditorState extends FlxState
@@ -950,7 +951,7 @@ class LevelEditorState extends FlxState
         #end
     }
 
-    private function loadLevelFromPath(path:String)
+    function loadLevelFromPath(path:String)
     {
         #if sys
         try
@@ -1056,7 +1057,7 @@ class LevelEditorState extends FlxState
         #end
     }
 
-    private function saveToPath(path:String):Void
+    function saveToPath(path:String):Void
     {
         #if sys
         try

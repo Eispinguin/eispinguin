@@ -406,7 +406,7 @@ class TerrainManager
         rebuildAll();
     }
 
-    private inline function alpha(pixel:Int):Int
+    inline function alpha(pixel:Int):Int
     {
         return (pixel >>> 24) & 0xFF;
     }
