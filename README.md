@@ -3,6 +3,10 @@ A penguin sees a UFO go over his home and wants to investigate.
 
 The name translates to "Ice Penguin" from German to English.
 
+## Documentation
+- `README.md` (This file) - General information and building tutorial
+- `levelediting.md` - Level editing information
+
 ## Building
 You'll need Haxe 4.3.7, Git, and a fully installed HaxeFlixel.
 Read "https://haxeflixel.com/documentation/getting-started/"
@@ -15,7 +19,8 @@ use the command `lime test linux -debug`
 are NOT tested and may have issues with the level editor!
 
 `html5` is somewhat supported, however, the level editor won't
-work properly there and is therefore disabled.
+work properly there (It can't save / load in on html5) and is 
+therefore disabled.
 
 ## Credits
 If you work on something and make a pull request, feel free to update this section!
