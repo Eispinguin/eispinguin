@@ -1,0 +1,32 @@
+{
+    "width": 4096,
+    "height": 600,
+
+    "player": {
+        "x": 100,
+        "y": 250
+    },
+
+    "pieces": [
+        {
+            "id": "blue_rocks_floor",
+            "x": 0,
+            "y": 450
+        },
+        {
+            "id": "blue_rocks_floor",
+            "x": 230,
+            "y": 450
+        },
+        {
+            "id": "blue_rocks_floor",
+            "x": 460,
+            "y": 450
+        },
+        {
+            "id": "blue_rocks_floor",
+            "x": 890,
+            "y": 450
+        }
+    ]
+}

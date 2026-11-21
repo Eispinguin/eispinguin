@@ -1,0 +1,161 @@
+{
+  "pieces": [
+    {
+      "x": -182,
+      "y": 458,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 460,
+      "y": 450,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 861,
+      "y": 447,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 34,
+      "y": 460,
+      "id": "blue_rocks_floor_ice"
+    },
+    {
+      "x": 467,
+      "y": 226,
+      "id": "blue_rocks_slope_ground"
+    },
+    {
+      "x": 652,
+      "y": 403,
+      "id": "blue_rock"
+    },
+    {
+      "x": 682,
+      "y": 201,
+      "id": "blue_rocks_floor_ice"
+    },
+    {
+      "x": 662,
+      "y": 399,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 148,
+      "y": -14,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 277,
+      "y": -18,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": -31,
+      "y": -12,
+      "id": "blue_rocks_floor_ice"
+    },
+    {
+      "x": 240,
+      "y": 462,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 1141,
+      "y": 393,
+      "id": "blue_rocks"
+    },
+    {
+      "x": 1188,
+      "y": 356,
+      "id": "blue_rocks"
+    },
+    {
+      "x": 1244,
+      "y": 323,
+      "id": "blue_rocks"
+    },
+    {
+      "x": 690,
+      "y": 199,
+      "id": "snow"
+    },
+    {
+      "x": 804,
+      "y": 200,
+      "id": "snow"
+    },
+    {
+      "x": 889,
+      "y": 446,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 985,
+      "y": 447,
+      "id": "snow"
+    },
+    {
+      "x": 1420,
+      "y": 363,
+      "id": "metal_big"
+    },
+    {
+      "x": 1418,
+      "y": 359,
+      "id": "snow"
+    },
+    {
+      "x": 1546,
+      "y": 357,
+      "id": "snow"
+    },
+    {
+      "x": 1482,
+      "y": 358,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 1807,
+      "y": 240,
+      "id": "metal"
+    },
+    {
+      "x": 1744,
+      "y": 305,
+      "id": "metal_small"
+    },
+    {
+      "x": 1942,
+      "y": 369,
+      "id": "metal_big"
+    },
+    {
+      "x": 1673,
+      "y": 364,
+      "id": "metal_big"
+    },
+    {
+      "x": 1934,
+      "y": 228,
+      "id": "blue_rocks_floor_ice"
+    },
+    {
+      "x": 2123,
+      "y": 380,
+      "id": "blue_rocks_floor_ice"
+    },
+    {
+      "x": 2140,
+      "y": 230,
+      "id": "blue_rocks_floor"
+    }
+  ],
+  "width": 2240,
+  "height": 600,
+  "music": "assets/music/antarctic_snow.ogg",
+  "player": {
+    "x": 100,
+    "y": 448
+  }
+}

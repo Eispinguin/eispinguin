@@ -1,0 +1,12 @@
+{
+    "tracks": [
+        {
+            "name": "No Music",
+            "asset": ""
+        },
+        {
+            "name": "Antarctic Snow",
+            "asset": "assets/music/antarctic_snow.ogg"
+        }
+    ]
+}
