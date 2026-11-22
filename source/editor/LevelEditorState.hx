@@ -38,7 +38,7 @@ class LevelEditorState extends FlxState
     static inline var resizeStep:Int = 64;
     static inline var minLevelSize:Int = 800;
     static inline var minLevelHeight:Int = 600;
-    static inline var maxLevelSize:Int = 4096;
+    static inline var maxLevelSize:Int = 8192;
 
     static inline var playerWidth:Int = 8;
     static inline var playerHeight:Int = 18;
@@ -186,7 +186,7 @@ class LevelEditorState extends FlxState
 
         var paletteX = Math.max(4, FlxG.width - paletteWidth - 8);
 
-        paletteBackground = new FlxSprite(paletteX, 200);
+        paletteBackground = new FlxSprite(paletteX, 42);
         paletteBackground.makeGraphic(paletteWidth, paletteHeight, 0x7F58B4FF, true);
         paletteBackground.scrollFactor.set(0, 0);
 
@@ -434,7 +434,7 @@ class LevelEditorState extends FlxState
         }
 
         var newWidth = Std.int(Math.max(minLevelSize, Math.min(maxLevelSize, document.width + deltaWidth)));
-        var newHeight = Std.int(Math.max(minLevelSize, Math.min(maxLevelSize, requestedHeight)));
+        var newHeight = Std.int(Math.max(minLevelHeight, Math.min(maxLevelSize, requestedHeight)));
 
         if (newWidth == document.width && newHeight == document.height)
         {
@@ -966,7 +966,7 @@ class LevelEditorState extends FlxState
 
         palettePreview.x = FlxG.width - previewWidth - 8 + (previewWidth - palettePreview.width) / 2;
 
-        palettePreview.y = 200 + paletteHeight - palettePreview.height - 8;
+        palettePreview.y = 42 + paletteHeight - palettePreview.height - 8;
 
         palettePreview.visible = true;
     }
