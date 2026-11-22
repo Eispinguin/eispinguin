@@ -33,7 +33,7 @@ class Goal extends FlxSprite
         loadGraphic("assets/images/objects/goal/portal-snow.png");
 
         setSize(70, 163);
-        offset.set(33, 0);
+        offset.set(33, 33);
     }
 
     public function reach()

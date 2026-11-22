@@ -114,7 +114,7 @@ class PlayState extends FlxState
 			switch (definition.id)
 			{
 				case "goal":
-					entities.add(new Goal(placement.x + 33, placement.y));
+					entities.add(new Goal(placement.x + 33, placement.y + 33));
 
 				default:
 					trace("Object unimplemented: " + placement.id);
