@@ -7,9 +7,21 @@
             "type": "ground"
         },
         {
+            "id": "ice_rock-small",
+            "name": "Small Ice Rock",
+            "image": "assets/images/groundpieces/ice/ice_rock-small.png",
+            "type": "ground"
+        },
+        {
             "id": "blue_rocks_floor",
             "name": "Ice Rock Floor (With Ground)",
             "image": "assets/images/groundpieces/ice/ice_rocks_floor.png",
+            "type": "ground"
+        },
+        {
+            "id": "blue_rocks_floor_even",
+            "name": "Ice Rock Floor (Even) (With Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rocks_floor-even.png",
             "type": "ground"
         },
         {
@@ -49,9 +61,15 @@
             "type": "ground"
         },
         {
+            "id": "blue_rocks_slope_morehigh_ground",
+            "name": "Ice Rock Slope (More High) (With Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rock_slope-morehigh.png",
+            "type": "ground"
+        },
+        {
             "id": "blue_rocks_slope_lesshigh_noground",
             "name": "Ice Rock Slope (Less High) (Without Ground)",
-            "image": "assets/images/groundpieces/ice/ice_rock_slope-lesshigh.png",
+            "image": "assets/images/groundpieces/ice/ice_rock_slope-lesshigh-onlyslope.png",
             "type": "ground"
         },
         {
@@ -70,6 +88,18 @@
             "id": "snow-icicle",
             "name": "Snow (With Icicles)",
             "image": "assets/images/groundpieces/ice/snow-icicle.png",
+            "type": "transparent"
+        },
+        {
+            "id": "grass1",
+            "name": "Grass 1",
+            "image": "assets/images/groundpieces/ice/grass1.png",
+            "type": "transparent"
+        },
+        {
+            "id": "grass2",
+            "name": "Grass 2",
+            "image": "assets/images/groundpieces/ice/grass2.png",
             "type": "transparent"
         },
         {
@@ -95,6 +125,18 @@
             "name": "Metal (Tiny)",
             "image": "assets/images/groundpieces/metal/tinyblock.png",
             "type": "solid"
+        },
+        {
+            "id": "cloud",
+            "name": "Cloud (Ground)",
+            "image": "assets/images/groundpieces/misc/cloud.png",
+            "type": "ground"
+        },
+        {
+            "id": "cloud_bg",
+            "name": "Cloud (Background)",
+            "image": "assets/images/groundpieces/misc/cloud-bg.png",
+            "type": "transparent"
         }
     ]
 }
