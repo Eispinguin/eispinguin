@@ -2,62 +2,62 @@
     "groundpieces": [
         {
             "id": "blue_rock",
-            "name": "Blue Rock",
-            "image": "assets/images/groundpieces/ice/blue_rock.png",
+            "name": "Ice Rock",
+            "image": "assets/images/groundpieces/ice/ice_rock.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_floor",
-            "name": "Blue Rock Floor (With Ground)",
-            "image": "assets/images/groundpieces/ice/blue_rocks_floor.png",
+            "name": "Ice Rock Floor (With Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rocks_floor.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_floor_ice",
-            "name": "Blue Rock Floor (With Ground + Ice)",
-            "image": "assets/images/groundpieces/ice/blue_rocks_floor-ice.png",
+            "name": "Ice Rock Floor (With Ground + Ice)",
+            "image": "assets/images/groundpieces/ice/ice_rocks_floor-ice.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks",
-            "name": "Multiple Blue Rocks",
-            "image": "assets/images/groundpieces/ice/blue_rocks.png",
+            "name": "Multiple Ice Rocks",
+            "image": "assets/images/groundpieces/ice/ice_rocks.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_floor_top",
-            "name": "Blue Rock Floor (Without Ground)",
-            "image": "assets/images/groundpieces/ice/blue_rocks_floor-only.png",
+            "name": "Ice Rock Floor (Without Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rocks_floor-only.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_uneven",
-            "name": "Blue Rock Floor (Uneven)",
+            "name": "Blue Rock Floor (Uneven) (DEPRECATED)",
             "image": "assets/images/groundpieces/ice/blue_rock_uneven.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_slope_ground",
-            "name": "Blue Rock Slope (With Ground)",
-            "image": "assets/images/groundpieces/ice/blue_rock_slope-ground.png",
+            "name": "Ice Rock Slope (With Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rock_slope-ground.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_slope_lesshigh_ground",
-            "name": "Blue Rock Slope (Less High) (With Ground)",
-            "image": "assets/images/groundpieces/ice/blue_rock_slope-lesshigh.png",
+            "name": "Ice Rock Slope (Less High) (With Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rock_slope-lesshigh.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_slope_lesshigh_noground",
-            "name": "Blue Rock Slope (Less High) (Without Ground)",
-            "image": "assets/images/groundpieces/ice/blue_rock_slope-lesshigh.png",
+            "name": "Ice Rock Slope (Less High) (Without Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rock_slope-lesshigh.png",
             "type": "ground"
         },
         {
             "id": "blue_rocks_slope",
-            "name": "Blue Rock Slope (Without Ground)",
-            "image": "assets/images/groundpieces/ice/blue_rock_slope.png",
+            "name": "Ice Rock Slope (Without Ground)",
+            "image": "assets/images/groundpieces/ice/ice_rock_slope.png",
             "type": "ground"
         },
         {
