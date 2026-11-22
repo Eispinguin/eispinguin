@@ -26,3 +26,17 @@ therefore disabled.
 If you work on something and make a pull request, feel free to update this section!
 - Vaesea (Art, Music, Levels)
 - AnatolyStev (Code, Test Level)
+
+## Development Status
+v0.0.0 has been completed, development will start on v0.0.1 soon.
+
+As of now, there are only two people working on this project. If
+you want to help, you can do the following things:
+- Art
+- Music
+- Levels
+- Code
+
+There may not be a credits menu right now, but there will be in v0.0.1.
+
+We appreciate anyone wanting to help with the game!
