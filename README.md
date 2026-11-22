@@ -1,4 +1,7 @@
 # Eispinguin
+Last Updated: November 22, 2026
+
+## Introduction
 A penguin sees a UFO go over his home and wants to investigate.
 
 The name translates to "Ice Penguin" from German to English.
@@ -28,7 +31,7 @@ If you work on something and make a pull request, feel free to update this secti
 - AnatolyStev (Code, Test Level)
 
 ## Development Status
-v0.0.0 has been completed, development will start on v0.0.1 soon.
+v0.0.0 has been completed, development has started on v0.0.1.
 
 As of now, there are only two people working on this project. If
 you want to help, you can do the following things:
