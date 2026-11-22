@@ -21,9 +21,9 @@ class TerrainPhysics
     public var gravity:Float = 1000;
     public var maxFallSpeed:Float = 500;
 
-    public var maxStepUp:Int = 8;
-    public var maxStepDown:Int = 8;
-    public var groundSnapDistance:Int = 4;
+    public var maxStepUp:Int = 12;
+    public var maxStepDown:Int = 12;
+    public var groundSnapDistance:Int = 6;
 
     public function new(terrain:TerrainManager)
     {
@@ -187,6 +187,9 @@ class TerrainPhysics
         var startY = Std.int(Math.floor(referenceBottom - maxUp));
         var endY = Std.int(Math.floor(referenceBottom + maxDown));
 
+        var bestSurface = -1;
+        var bestDistance:Float = 1e30;
+
         for (py in startY...(endY + 1))
         {
             var foundSurface = false;
@@ -196,7 +199,7 @@ class TerrainPhysics
                 if (solidAt(px, py))
                 {
                     foundSurface = true;
-                    break; // nvm after searching ik why this was put here!!!
+                    break;
                 }
             }
 
@@ -209,13 +212,19 @@ class TerrainPhysics
 
             if (bodyBlockedAt(object, x, candidateY))
             {
-                return -1;
+                continue;
             }
 
-            return py;
+            var distance = Math.abs(py - referenceBottom);
+
+            if (distance < bestDistance || (distance == bestDistance && (bestSurface < 0 || py < bestSurface)))
+            {
+                bestDistance = distance;
+                bestSurface = py;
+            }
         }
 
-        return -1;
+        return bestSurface;
     }
 
     function bodyBlockedAt(object:FlxObject, x:Float, y:Float):Bool
@@ -343,5 +352,26 @@ class TerrainPhysics
     inline function solidAt(x:Int, y:Int):Bool
     {
         return terrain.isSolidAtWorld(x, y);
+    }
+
+    public function canOccupy(x:Float, y:Float, width:Float, height:Float):Bool
+    {
+        var left = Std.int(Math.floor(x));
+        var right = Std.int(Math.ceil(x + width)) - 1;
+        var top = Std.int(Math.floor(y));
+        var bottom = Std.int(Math.ceil(y + height)) - 1;
+
+        for (py in top...(bottom + 1))
+        {
+            for (px in left...(right + 1))
+            {
+                if (solidAt(px, py))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

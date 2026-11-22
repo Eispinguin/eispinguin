@@ -32,7 +32,12 @@ class CollisionMap
     {
         if (x < 0 || x >= width)
         {
-            return outsideIsSolid ? solid : empty; // maybe make this be "return true" or whatever? later!
+            return outsideIsSolid ? solid : empty;
+        }
+
+        if (y < 0 || y >= height)
+        {
+            return empty;
         }
 
         return data.get(y * width + x);

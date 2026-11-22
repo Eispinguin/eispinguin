@@ -18,6 +18,12 @@ class Player extends EPSprite
     var skidThreshold:Float = 150;
     var skidMultiplier:Float = 0.75;
 
+    // Ducking
+    var standingHeight:Int = 18;
+    var duckingHeight:Int = 11;
+
+    var isDucking:Bool = false;
+
     // Timers (don't change!)
     var coyoteTimer:Float = 0;
     var jumpBufferTimer:Float = 0;
@@ -39,7 +45,7 @@ class Player extends EPSprite
         animation.add("jump", [10], 15.0, false);
         animation.add("skid", [11], 15.0, false);
 
-        setSize(8, 18);
+        setSize(8, standingHeight);
         offset.set(4, 7);
 
         velocity.set(0, 0);
@@ -52,6 +58,8 @@ class Player extends EPSprite
     override public function update(elapsed:Float)
     {
         super.update(elapsed);
+
+        // Timers below!
 
         if (skidTimer > 0)
         {
@@ -67,30 +75,51 @@ class Player extends EPSprite
 
         var direction:Int = 0;
 
-        if (FlxG.keys.pressed.LEFT)
+        if (!(isDucking && onGround))
         {
-            direction = -1;
-            flipX = true;
-        }
+            if (FlxG.keys.pressed.LEFT)
+            {
+                direction = -1;
+                flipX = true;
+            }
 
-        if (FlxG.keys.pressed.RIGHT)
-        {
-            direction = 1;
-            flipX = false;
+            if (FlxG.keys.pressed.RIGHT)
+            {
+                direction = 1;
+                flipX = false;
+            }
         }
 
         var targetVelocityX = direction * walkSpeed;
 
-        if (direction != 0)
-        {
-            velocityX = approach(velocityX, targetVelocityX, groundAcceleration * elapsed);
-        }
-        else
+        if (isDucking && onGround)
         {
             velocityX = approach(velocityX, 0, groundDeceleration * elapsed);
         }
+        else 
+        {
+            if (direction != 0)
+            {
+                velocityX = approach(velocityX, targetVelocityX, groundAcceleration * elapsed);
+            }
+            else
+            {
+                velocityX = approach(velocityX, 0, groundDeceleration * elapsed);
+            }
+        }
 
         var touchingGround = physics.isGrounded(this, 2);
+
+        if (FlxG.keys.pressed.DOWN && touchingGround)
+        {
+            setDucking(true);
+        }
+        else if (!FlxG.keys.pressed.DOWN && isDucking)
+        {
+            setDucking(false);
+        }
+
+        touchingGround = physics.isGrounded(this, 2);
 
         onGround = touchingGround;
 
@@ -186,6 +215,12 @@ class Player extends EPSprite
 
     function animate()
     {
+        if (isDucking)
+        {
+            playAnimation("duck");
+            return;
+        }
+
         if (onGround)
         {
             if (skidTimer > 0)
@@ -219,5 +254,41 @@ class Player extends EPSprite
         }
         
         FlxG.resetState();
+    }
+
+    function setDucking(ducking:Bool)
+    {
+        if (isDucking == ducking)
+        {
+            return;
+        }
+
+        var feetY = y + height;
+
+        if (ducking)
+        {
+            setSize(8, duckingHeight);
+            offset.set(4, 14);
+
+            y = feetY - duckingHeight;
+
+            isDucking = true;
+        }
+        else
+        {
+            var standingY = feetY - standingHeight;
+
+            if (!physics.canOccupy(x, standingY, width, standingHeight))
+            {
+                return;
+            }
+
+            setSize(8, standingHeight);
+            offset.set(4, 7);
+
+            y = standingY;
+
+            isDucking = false;
+        }
     }
 }
