@@ -17,7 +17,6 @@
 
 package editor;
 
-import openfl.display.BitmapData;
 import collision.GroundPiece;
 import collision.TerrainManager;
 import editor.LevelDocument;
@@ -30,6 +29,7 @@ import flixel.util.FlxGradient;
 import lime.ui.FileDialog;
 import lime.ui.FileDialogType;
 import openfl.Assets;
+import openfl.display.BitmapData;
 import openfl.geom.Rectangle;
 import states.PlayState;
 import util.GroundPieceDefinition;
@@ -108,7 +108,7 @@ class LevelEditorState extends FlxState
     var palettePage:Int = 0;
     var sidebarX:Int = 0;
 
-    var toolIconPaths:Array<String> = ["assets/images/engine/editor/paintbrush.png", "assets/images/engine/editor/select.png", "assets/images/engine/editor/select-player.png", "assets/images/engine/editor/paintbrush.png"]; // 4th option is placeholder!
+    var toolIconPaths:Array<String> = ["assets/images/engine/editor/paintbrush.png", "assets/images/engine/editor/select.png", "assets/images/engine/editor/select-player.png", "assets/images/engine/editor/object.png"];
 
     var toolButtonModes:Array<String> = ["place", "select", "player", "object"];
     var toolButtonRects:Array<Rectangle> = [];
