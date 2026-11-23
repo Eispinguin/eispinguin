@@ -82,30 +82,36 @@
             "id": "ice",
             "name": "Ice",
             "image": "assets/images/groundpieces/ice/ice.png",
-            "type": "ground"
+            "type": "transparent"
         },
         {
             "id": "ice-long",
             "name": "Long Ice",
             "image": "assets/images/groundpieces/ice/ice-long.png",
-            "type": "ground"
+            "type": "transparent"
         },
         {
             "id": "ice-tall",
             "name": "Tall Ice",
             "image": "assets/images/groundpieces/ice/ice-tall.png",
-            "type": "ground"
+            "type": "transparent"
         },
         {
             "id": "ice-small",
             "name": "Small Ice",
             "image": "assets/images/groundpieces/ice/ice-small.png",
-            "type": "ground"
+            "type": "transparent"
         },
         {
             "id": "ice-smaller",
             "name": "Smaller Ice",
             "image": "assets/images/groundpieces/ice/ice-smaller.png",
+            "type": "transparent"
+        },
+        {
+            "id": "snowplatform",
+            "name": "Snow Platform",
+            "image": "assets/images/groundpieces/ice/platform.png",
             "type": "ground"
         },
         {
