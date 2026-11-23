@@ -121,12 +121,12 @@
       "id": "blue_rocks_floor_ice"
     },
     {
-      "x": 2123,
-      "y": 380,
+      "x": 2115,
+      "y": 433,
       "id": "blue_rocks_floor_ice"
     },
     {
-      "x": 2107,
+      "x": 2105,
       "y": 233,
       "id": "blue_rocks_floor"
     },
@@ -239,22 +239,242 @@
       "x": 89,
       "y": 447,
       "id": "snow"
+    },
+    {
+      "x": 2303,
+      "y": 227,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 2501,
+      "y": 220,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 2700,
+      "y": 215,
+      "id": "blue_rocks"
+    },
+    {
+      "x": 2760,
+      "y": 206,
+      "id": "blue_rocks_floor_top"
+    },
+    {
+      "x": 2809,
+      "y": 208,
+      "id": "blue_rocks_slope_ground"
+    },
+    {
+      "x": 3067,
+      "y": 352,
+      "id": "metal"
+    },
+    {
+      "x": 2908,
+      "y": 336,
+      "id": "blue_rocks_slope_lesshigh_ground"
+    },
+    {
+      "x": 2282,
+      "y": -126,
+      "id": "snowtree"
+    },
+    {
+      "x": 2995,
+      "y": 468,
+      "id": "blue_rocks_slope_lesshigh_ground"
+    },
+    {
+      "x": 2544,
+      "y": 166,
+      "id": "grass1"
+    },
+    {
+      "x": 2572,
+      "y": 165,
+      "id": "grass1"
+    },
+    {
+      "x": 2314,
+      "y": 224,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 2547,
+      "y": 213,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 3096,
+      "y": 320,
+      "id": "blue_rocks_floor_top"
+    },
+    {
+      "x": 3377,
+      "y": 380,
+      "id": "blue_rocks_floor_top"
+    },
+    {
+      "x": 3240,
+      "y": 555,
+      "id": "blue_rocks_floor_top"
+    },
+    {
+      "x": 3411,
+      "y": 542,
+      "id": "blue_rocks_floor_top"
+    },
+    {
+      "x": 3081,
+      "y": 368,
+      "id": "blue_rock"
+    },
+    {
+      "x": 2693,
+      "y": 220,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 2704,
+      "y": 213,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 2882,
+      "y": 220,
+      "id": "blue_rock"
+    },
+    {
+      "x": 2796,
+      "y": 419,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 2633,
+      "y": 428,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 2307,
+      "y": 441,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 2470,
+      "y": 431,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 3292,
+      "y": 461,
+      "id": "blue_rock"
+    },
+    {
+      "x": 3702,
+      "y": 19,
+      "id": "snowtree"
+    },
+    {
+      "x": 3567,
+      "y": 374,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 3894,
+      "y": 0,
+      "id": "cloud_bg"
+    },
+    {
+      "x": 3803,
+      "y": 19,
+      "id": "snowtree"
+    },
+    {
+      "x": 3761,
+      "y": 369,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 3116,
+      "y": 365,
+      "id": "ice_rock-small"
+    },
+    {
+      "x": 3126,
+      "y": 353,
+      "id": "ice_rock-small"
+    },
+    {
+      "x": 3136,
+      "y": 344,
+      "id": "ice_rock-small"
+    },
+    {
+      "x": 3966,
+      "y": 371,
+      "id": "metal_big"
+    },
+    {
+      "x": 3597,
+      "y": 18,
+      "id": "snowtree"
+    },
+    {
+      "x": 3166,
+      "y": -73,
+      "id": "cloud_bg"
+    },
+    {
+      "x": 3558,
+      "y": 355,
+      "id": "grass2"
+    },
+    {
+      "x": 3563,
+      "y": 370,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 3681,
+      "y": 371,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 4000,
+      "y": 542,
+      "id": "blue_rock"
+    },
+    {
+      "x": 4077,
+      "y": 513,
+      "id": "blue_rock"
+    },
+    {
+      "x": 4132,
+      "y": 441,
+      "id": "blue_rock"
+    },
+    {
+      "x": 4011,
+      "y": 386,
+      "id": "blue_rock"
     }
   ],
   "objects": [
     {
-      "x": 2027,
-      "y": 61,
+      "x": 4076,
+      "y": 189,
       "id": "goal"
     }
   ],
   "gradientBottom": "0xFFFFFF",
-  "width": 2240,
+  "width": 4288,
   "gradientTop": "0x8080FF",
   "height": 600,
   "music": "assets/music/antarctic_snow.ogg",
   "player": {
-    "x": 72,
-    "y": 435
+    "x": 54,
+    "y": 436
   }
 }
