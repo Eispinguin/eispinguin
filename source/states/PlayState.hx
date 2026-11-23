@@ -81,6 +81,8 @@ class PlayState extends FlxState
 	{
 		super.create();
 
+		FlxG.mouse.visible = false;
+
         var groundpieceLibrary = GroundPieceLibrary.load("assets/data/groundpieces.json");
 		var objectLibrary = LevelObjectLibrary.load("assets/data/objects.json");
 		var json = editorPlaytestJson != null ? editorPlaytestJson : Assets.getText(levelPath);
