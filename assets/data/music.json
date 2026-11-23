@@ -7,6 +7,10 @@
         {
             "name": "Antarctic Snow",
             "asset": "assets/music/antarctic_snow.ogg"
+        },
+        {
+            "name": "Sky Limit",
+            "asset": "assets/music/skylimit.ogg"
         }
     ]
 }
