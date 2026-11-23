@@ -17,6 +17,7 @@
 
 package editor;
 
+import openfl.display.BitmapData;
 import collision.GroundPiece;
 import collision.TerrainManager;
 import editor.LevelDocument;
@@ -38,13 +39,9 @@ class LevelEditorState extends FlxState
     static inline var resizeStep:Int = 256;
     static inline var minLevelSize:Int = 800;
     static inline var minLevelHeight:Int = 600;
-    static inline var maxLevelSize:Int = 8192;
+    static inline var maxLevelSize:Int = 16384; // 8192 * 2
 
     static inline var cameraSpeed:Float = 500;
-
-    static inline var paletteWidth:Int = 184;
-    static inline var paletteHeight:Int = 240;
-    static inline var paletteRows:Int = 8;
 
     public var levelAssetPath:String;
     public var savePath:String;
@@ -68,10 +65,6 @@ class LevelEditorState extends FlxState
     var selectionOutline:FlxSprite;
 
     var hud:FlxText;
-
-    var paletteBackground:FlxSprite;
-    var paletteText:FlxText;
-    var palettePreview:FlxSprite;
 
     var tool:String = "place";
 
@@ -104,13 +97,34 @@ class LevelEditorState extends FlxState
     var selectedObjectIndex:Int = 0;
     var selectedObjectPlacementIndex:Int = -1;
 
-    var objectPaletteBackground:FlxSprite;
-    var objectPaletteText:FlxText;
-    var objectPalettePreview:FlxSprite;
-
     var objectSprites:Array<FlxSprite> = [];
 
     var draggingObject:Bool = false;
+
+    static inline var sidebarWidth:Int = 210;
+    static inline var paletteTileSize:Int = 62;
+
+    var paletteMode:String = "ground";
+    var palettePage:Int = 0;
+    var sidebarX:Int = 0;
+
+    var toolIconPaths:Array<String> = ["assets/images/engine/editor/paintbrush.png", "assets/images/engine/editor/select.png", "assets/images/engine/editor/select-player.png", "assets/images/engine/editor/paintbrush.png"]; // 4th option is placeholder!
+
+    var toolButtonModes:Array<String> = ["place", "select", "player", "object"];
+    var toolButtonRects:Array<Rectangle> = [];
+    var toolButtonBackgrounds:Array<FlxSprite> = [];
+
+    var actionButtonRects:Array<Rectangle> = [];
+    var actionButtonActions:Array<String> = [];
+
+    var paletteTileRects:Array<Rectangle> = [];
+    var paletteTileIndices:Array<Int> = [];
+    var paletteTileSprites:Array<FlxSprite> = [];
+
+    var groundTabBackground:FlxSprite;
+    var objectTabBackground:FlxSprite;
+
+    var musicLabel:FlxText;
 
     public function new(levelAssetPath:String, savePath:String, ?initialJson:String, ?existingHistory:EditorHistory, ?currentFilePath:String)
     {
@@ -176,50 +190,15 @@ class LevelEditorState extends FlxState
 
         add(selectionOutline);
 
-        hud = new FlxText(8, 8, FlxG.width - 16, "", 10);
+        hud = new FlxText(FlxG.width * 0.5, 8, FlxG.width - sidebarWidth - 165, "", 10);
         hud.scrollFactor.set(0, 0);
-
         add(hud);
 
-        var paletteX = Math.max(4, FlxG.width - paletteWidth - 8);
-
-        paletteBackground = new FlxSprite(paletteX, 42);
-        paletteBackground.makeGraphic(paletteWidth, paletteHeight, 0x7F58B4FF, true);
-        paletteBackground.scrollFactor.set(0, 0);
-
-        add(paletteBackground);
-
-        palettePreview = new FlxSprite();
-        palettePreview.scrollFactor.set(0, 0);
-
-        add(palettePreview);
-
-        paletteText = new FlxText(paletteX + 8, 48, paletteWidth - 16, "", 10);
-        paletteText.scrollFactor.set(0, 0);
-
-        add(paletteText);
-
-        objectPaletteBackground = new FlxSprite(8, 200);
-        objectPaletteBackground.makeGraphic(paletteWidth, paletteHeight, 0x7F58B4FF, true);
-        objectPaletteBackground.scrollFactor.set(0, 0);
-
-        add(objectPaletteBackground);
-
-        objectPalettePreview = new FlxSprite();
-        objectPalettePreview.scrollFactor.set(0, 0);
-
-        add(objectPalettePreview);
-
-        objectPaletteText = new FlxText(16, 206, paletteWidth - 16, "", 10);
-        objectPaletteText.scrollFactor.set(0, 0);
-
-        add(objectPaletteText);
+        createEditorGUI();
 
         updatePlayerMarker();
         refreshSelection();
-
-        updatePalette();
-        updateObjectPalette();
+        updateUnifiedPalette();
         updateHUD();
 
         updateCameraBounds();
@@ -233,6 +212,14 @@ class LevelEditorState extends FlxState
 
         if (handleKeyboard(elapsed))
         {
+            return;
+        }
+
+        var guiConsumed = handleGUIInput();
+
+        if (guiConsumed && !draggingPiece && !draggingPlayer && !draggingObject)
+        {
+            updateHUD();
             return;
         }
 
@@ -297,18 +284,6 @@ class LevelEditorState extends FlxState
         if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S)
         {
             save();
-            return true;
-        }
-
-        if (FlxG.keys.pressed.CONTROL && FlxG.keys.justPressed.S)
-        {
-            save();
-            return true;
-        }
-
-        if (FlxG.keys.justPressed.ENTER)
-        {
-            startPlaytest();
             return true;
         }
 
@@ -384,11 +359,13 @@ class LevelEditorState extends FlxState
 
     function updateCameraBounds()
     {
-        var maxX = Math.max(0, document.width - FlxG.camera.viewWidth);
+        var canvasWidth = FlxG.width - sidebarWidth;
+
+        var maxX = Math.max(0, document.width - canvasWidth);
         var maxY = Math.max(0, document.height - FlxG.camera.viewHeight);
 
-        FlxG.camera.scroll.x = FlxG.camera.scroll.x < 0 ? 0 : Math.min(FlxG.camera.scroll.x, maxX);
-        FlxG.camera.scroll.y = FlxG.camera.scroll.y < 0 ? 0 : Math.min(FlxG.camera.scroll.y, maxY);
+        FlxG.camera.scroll.x = Math.max(0, Math.min(FlxG.camera.scroll.x, maxX));
+        FlxG.camera.scroll.y = Math.max(0, Math.min(FlxG.camera.scroll.y, maxY));
     }
 
     function moveSelectedGroundpieceLayer(direction:Int):Void
@@ -515,7 +492,7 @@ class LevelEditorState extends FlxState
 
         if (FlxG.mouse.justPressed)
         {
-            if (mouseOverPalette())
+            if (mouseOverEditorGUI())
             {
                 return;
             }
@@ -619,17 +596,6 @@ class LevelEditorState extends FlxState
                 finishObjectDrag();
             }
         }
-    }
-
-    function mouseOverPalette():Bool
-    {
-        var x = FlxG.mouse.viewX;
-        var y = FlxG.mouse.viewY;
-
-        var overGroundpiecePalette = x >= FlxG.width - paletteWidth - 8 && x <= FlxG.width - 8 && y >= 42 && y <= 42 + paletteHeight;
-        var overObjectPalette = x >= 8 && x <= 8 + paletteWidth && y >= 200 && y <= 200 + paletteHeight;
-
-        return overGroundpiecePalette || overObjectPalette;
     }
 
     function placeGroundpiece(x:Int, y:Int)
@@ -866,26 +832,21 @@ class LevelEditorState extends FlxState
 
     function deleteSelected()
     {
-        if (selectedPlacementIndex < 0 || selectedPlacementIndex >= document.pieces.length)
-        {
-            return;
-        }
-
         if (selectedObjectPlacementIndex >= 0 && selectedObjectPlacementIndex < document.objects.length)
         {
             document.objects.splice(selectedObjectPlacementIndex, 1);
-
             selectedObjectPlacementIndex = -1;
-
             commitEdit();
 
             return;
         }
 
-        document.pieces.splice(selectedPlacementIndex, 1);
-        selectedPlacementIndex = -1;
-
-        commitEdit();
+        if (selectedPlacementIndex >= 0 && selectedPlacementIndex < document.pieces.length)
+        {
+            document.pieces.splice(selectedPlacementIndex, 1);
+            selectedPlacementIndex = -1;
+            commitEdit();
+        }
     }
 
     function setTool(newTool:String)
@@ -896,6 +857,7 @@ class LevelEditorState extends FlxState
         draggingPlayer = false;
         draggingObject = false;
 
+        updateToolButtons();
         updateHUD();
     }
 
@@ -920,7 +882,7 @@ class LevelEditorState extends FlxState
             selectedPieceIndex = 0;
         }
 
-        updatePalette();
+        updateUnifiedPalette();
     }
 
     function cycleObject(direction:Int)
@@ -944,110 +906,7 @@ class LevelEditorState extends FlxState
             selectedObjectIndex = 0;
         }
 
-        updateObjectPalette();
-    }
-
-    function updatePalette()
-    {
-        var definitions = groundpieceLibrary.definitions;
-
-        if (definitions.length == 0)
-        {
-            paletteText.text = "GROUNDPIECES\nNo pieces loaded";
-            palettePreview.visible = false;
-            return;
-        }
-
-        var start = Std.int(Math.max(0, selectedPieceIndex - Std.int(paletteRows / 2)));
-        start = Std.int(Math.min(start, Math.max(0, definitions.length - paletteRows)));
-
-        var end = Std.int(Math.min(definitions.length, start + paletteRows));
-
-        var lines:Array<String> = [];
-
-        lines.push("GROUNDPIECES");
-        lines.push("Q / E to select");
-        lines.push("");
-
-        for (i in start...end)
-        {
-            var definition = definitions[i];
-
-            var marker = i == selectedPieceIndex ? "> " : "  ";
-
-            lines.push(marker + definition.name);
-        }
-
-        paletteText.text = lines.join("\n");
-
-        var selectedDefinition = definitions[selectedPieceIndex];
-
-        palettePreview.loadGraphic(selectedDefinition.bitmap, false, 0, 0, true);
-
-        var maxWidth = paletteWidth - 20;
-        var maxHeight = 55;
-
-        var scale = Math.min(1, Math.min(maxWidth / selectedDefinition.bitmap.width, maxHeight / selectedDefinition.bitmap.height));
-
-        var previewWidth = Std.int(selectedDefinition.bitmap.width * scale);
-        var previewHeight = Std.int(selectedDefinition.bitmap.height * scale);
-
-        palettePreview.setGraphicSize(previewWidth, previewHeight);
-        palettePreview.updateHitbox();
-
-        palettePreview.x = FlxG.width - previewWidth - 8 + (previewWidth - palettePreview.width) / 2;
-        palettePreview.y = 42 + paletteHeight - palettePreview.height - 8;
-
-        palettePreview.visible = true;
-    }
-
-    function updateObjectPalette()
-    {
-        var definitions = objectLibrary.definitions;
-
-        if (definitions.length == 0)
-        {
-            objectPaletteText.text = "Objects: \nNo objects loaded";
-            objectPalettePreview.visible = false;
-            return;
-        }
-
-        var lines:Array<String> = [];
-
-        lines.push("Objects");
-        lines.push("Z / X to cycle through / select");
-        lines.push("");
-
-        for (i in 0...definitions.length)
-        {
-            var definition = definitions[i];
-
-            var marker = i == selectedObjectIndex ? "> " : "  ";
-
-            lines.push(marker + definition.name);
-        }
-
-        objectPaletteText.text = lines.join("\n");
-
-        var selectedDefinition = definitions[selectedObjectIndex];
-
-        objectPalettePreview.loadGraphic(selectedDefinition.bitmap, false, 0, 0, true);
-
-        var maxWidth = paletteWidth - 20;
-        var maxHeight = 55;
-
-        var scale = Math.min(1, Math.min(maxWidth / selectedDefinition.bitmap.width, maxHeight / selectedDefinition.bitmap.height));
-
-        var previewWidth = Std.int(selectedDefinition.bitmap.width * scale);
-        var previewHeight = Std.int(selectedDefinition.bitmap.height * scale);
-
-        objectPalettePreview.setGraphicSize(previewWidth, previewHeight);
-        objectPalettePreview.updateHitbox();
-
-        objectPalettePreview.x = 8 + (paletteWidth - previewWidth) / 2;
-        objectPalettePreview.y = 200 + paletteHeight - previewHeight - 8;
-
-        objectPalettePreview.visible = true;
+        updateUnifiedPalette();
     }
 
     function refreshSelection()
@@ -1254,7 +1113,7 @@ class LevelEditorState extends FlxState
         syncTerrainToDocument();
         updatePlayerMarker();
         refreshSelection();
-        updatePalette();
+        updateUnifiedPalette();
         previewMusic();
         updateHUD();
     }
@@ -1268,35 +1127,7 @@ class LevelEditorState extends FlxState
 
     function updateHUD()
     {
-        var pieceName = "None";
-
-        if (groundpieceLibrary.definitions.length > 0)
-        {
-            pieceName = groundpieceLibrary.definitions[selectedPieceIndex].name;
-        }
-
-        var objectName = "None";
-
-        if (objectLibrary.definitions.length > 0)
-        {
-            objectName = objectLibrary.definitions[selectedObjectIndex].name;
-        }
-
-        var musicName = "No Music";
-
-        if (musicLibrary.tracks.length > 0)
-        {
-            musicName = musicLibrary.tracks[selectedMusicIndex].name;
-        }
-
-        hud.text = "Tool: " + tool + " | Piece: " + pieceName + " | Music: " + musicName +
-        "\n1: Place Ground, 2: Select/Drag, 3: Move Player, 4: Place Object" +
-        "\nQ/E: Switch Pieces, Z/X: Switch Objects, Delete: Remove, Ctrl+Z/Y: Undo/Redo" +
-        "\nO/P: Send groundpiece backwards / forwards (in layer, not position!)" +
-        "\nCtrl+S: Save, ENTER: Playtest" +
-        "\nArrows: Camera, Shift+Arrows: Fast Camera" +
-        "\nCtrl+Shift+Arrows: Resize (32px) (Up = Decrease, Down = Increase)" +
-        "\nCtrl+O: Open, Ctrl+S: Save, Ctrl+Shift+S: Save As";
+        hud.text = "Level Size: " + document.width + "x" + document.height;
     }
 
     function finishPieceDrag()
@@ -1409,7 +1240,7 @@ class LevelEditorState extends FlxState
             syncTerrainToDocument();
             updatePlayerMarker();
             refreshSelection();
-            updatePalette();
+            updateUnifiedPalette();
 
             FlxG.camera.scroll.set(0, 0);
 
@@ -1529,5 +1360,409 @@ class LevelEditorState extends FlxState
         displayedGradientBottom = document.gradientBottom;
 
         insert(0, levelGradient);
+    }
+
+    function addFixedSprite(sprite:FlxSprite):FlxSprite
+    {
+        sprite.scrollFactor.set(0, 0);
+        add(sprite);
+        return sprite;
+    }
+
+    function addActionButton(label:String, x:Int, y:Int, width:Int, height:Int, action:String):FlxSprite
+    {
+        var background = new FlxSprite(x, y);
+        background.makeGraphic(width, height, 0xFF343B50, true);
+        background.scrollFactor.set(0, 0);
+        add(background);
+
+        var text = new FlxText(x + 3, y + Std.int((height - 14) / 2), width - 6, label, 8);
+
+        text.alignment = "center";
+        text.scrollFactor.set(0, 0);
+        add(text);
+
+        actionButtonRects.push(new Rectangle(x, y, width, height));
+        actionButtonActions.push(action);
+
+        return background;
+    }
+
+    function createEditorGUI()
+    {
+        sidebarX = FlxG.width - sidebarWidth;
+
+        var sidebar = new FlxSprite(sidebarX, 0);
+        sidebar.makeGraphic(sidebarWidth, FlxG.height, 0x75C4CEFF, true);
+        addFixedSprite(sidebar);
+
+        createToolButtons();
+
+        addActionButton("W-", 154, 4, 34, 30, "widthMinus");
+        addActionButton("W+", 191, 4, 34, 30, "widthPlus");
+        addActionButton("H-", 228, 4, 34, 30, "heightMinus");
+        addActionButton("H+", 265, 4, 34, 30, "heightPlus");
+
+        groundTabBackground = addActionButton("Ground Pieces", sidebarX + 7, 7, 100, 30, "tabGround");
+        objectTabBackground = addActionButton("Objects", sidebarX + 110, 7, 99, 30, "tabObjects");
+
+        addActionButton("<", sidebarX + 8, FlxG.height - 174, 48, 24, "palettePrevious");
+        addActionButton(">", sidebarX + 160, FlxG.height - 174, 48, 24, "paletteNext");
+
+        addActionButton("<", sidebarX + 8, FlxG.height - 143, 30, 25, "musicPrevious");
+        addActionButton(">", sidebarX + 178, FlxG.height - 143, 30, 25, "musicNext");
+
+        musicLabel = new FlxText(sidebarX + 42, FlxG.height - 140, 132, "", 10);
+        musicLabel.alignment = "center";
+        addFixedSprite(musicLabel);
+
+        var buttonY = FlxG.height - 46;
+        var x = 5;
+
+        addActionButton("Save", x, buttonY, 82, 40, "save");
+        x += 87;
+        addActionButton("Open", x, buttonY, 82, 40, "open");
+        x += 87;
+        addActionButton("Save As", x, buttonY, 104, 40, "saveAs");
+        x += 109;
+        addActionButton("Play", x, buttonY, 72, 40, "playtest");
+        x += 77;
+        addActionButton("Back", x, buttonY, 54, 40, "layerBack");
+        x += 59;
+        addActionButton("Front", x, buttonY, 54, 40, "layerFront");
+        x += 59;
+        addActionButton("Delete", x, buttonY, 60, 40, "delete");
+
+        updatePaletteTabs();
+        updateMusicLabel();
+        updateToolButtons();
+    }
+
+    function createToolButtons()
+    {
+        for (i in 0...toolButtonModes.length)
+        {
+            var x = 4 + i * 36;
+            var y = 4;
+
+            var background = new FlxSprite(x, y);
+            background.makeGraphic(32, 32, 0xFF505A70, true);
+
+            addFixedSprite(background);
+            toolButtonBackgrounds.push(background);
+
+            var icon = new FlxSprite(x + 2, y + 2);
+
+            var path = toolIconPaths[i];
+
+            if (path != "" && Assets.exists(path))
+            {
+                icon.loadGraphic(path);
+                icon.setGraphicSize(28, 28);
+                icon.updateHitbox();
+
+                addFixedSprite(icon);
+            }
+            else
+            {
+                trace("did something wrong lol");
+            }
+
+            toolButtonRects.push(new Rectangle(x, y, 32, 32));
+        }
+    }
+
+    function updateToolButtons()
+    {
+        for (i in 0...toolButtonBackgrounds.length)
+        {
+            var selected = toolButtonModes[i] == tool;
+
+            toolButtonBackgrounds[i].makeGraphic(32, 32, selected ? 0xFFB4C4D8 : 0xFF3B404B, true);
+        }
+    }
+
+    function updatePaletteTabs()
+    {
+        groundTabBackground.makeGraphic(100, 30, paletteMode == "ground" ? 0xFF6A8DCE : 0xFF344D97, true);
+        objectTabBackground.makeGraphic(99, 30, paletteMode == "objects" ? 0xFF6A8DCE : 0xFF344D97, true);
+    }
+
+    function setPaletteMode(mode:String)
+    {
+        paletteMode = mode;
+        palettePage = 0;
+
+        if (tool == "place" || tool == "object")
+        {
+            tool = mode == "ground" ? "place" : "object";
+        }
+
+        updatePaletteTabs();
+        updateUnifiedPalette();
+        updateToolButtons();
+        updateHUD();
+    }
+
+    function updateUnifiedPalette()
+    {
+        for (sprite in paletteTileSprites)
+        {
+            remove(sprite, true);
+        }
+
+        paletteTileSprites = [];
+        paletteTileRects = [];
+        paletteTileIndices = [];
+
+        var definitionCount = paletteMode == "ground" ? groundpieceLibrary.definitions.length : objectLibrary.definitions.length;
+
+        var rows = Std.int(Math.max(1, Math.floor((FlxG.height - 240) / 66)));
+        var pageSize = rows * 3;
+
+        var start = palettePage * pageSize;
+
+        if (start >= definitionCount && palettePage > 0)
+        {
+            palettePage -= 1;
+            start = palettePage * pageSize;
+        }
+
+        var end = Std.int(Math.min(definitionCount, start + pageSize));
+
+        for (i in start...end)
+        {
+            var bitmap:BitmapData;
+            var itemName:String;
+
+            if (paletteMode == "ground")
+            {
+                var definition = groundpieceLibrary.definitions[i];
+
+                bitmap = definition.bitmap;
+                itemName = definition.name;
+            }
+            else
+            {
+                var definition = objectLibrary.definitions[i];
+
+                bitmap = definition.bitmap;
+                itemName = definition.name;
+            }
+
+            var localIndex = i;
+            var slot = i - start;
+
+            var column = slot % 3;
+            var row = Std.int(slot / 3);
+
+            var x = sidebarX + 8 + column * 64;
+            var y = 49 + row * 64;
+
+            var isSelected = paletteMode == "ground" ? localIndex == selectedPieceIndex : localIndex == selectedObjectIndex;
+
+            var background = new FlxSprite(x, y);
+            background.makeGraphic(paletteTileSize, paletteTileSize, isSelected ? 0xFF9DB7E9 : 0xFFF5F6FC, true);
+
+            addFixedSprite(background);
+            paletteTileSprites.push(background);
+
+            var preview = new FlxSprite();
+
+            preview.loadGraphic(bitmap, false, 0, 0, true);
+
+            var scale = Math.min(1, Math.min(44 / bitmap.width, 38 / bitmap.height));
+
+            var previewWidth = Std.int(bitmap.width * scale);
+            var previewHeight = Std.int(bitmap.height * scale);
+
+            preview.setGraphicSize(previewWidth, previewHeight);
+            preview.updateHitbox();
+
+            preview.x = x + (paletteTileSize - preview.width) / 2;
+            preview.y = y + 2;
+
+            addFixedSprite(preview);
+            paletteTileSprites.push(preview);
+
+            if (itemName.length > 8)
+            {
+                itemName = itemName.substr(0, 7) + ".";
+            }
+
+            var label = new FlxText(x + 1, y + 42, paletteTileSize - 2, itemName, 8);
+
+            label.alignment = "center";
+
+            addFixedSprite(label);
+            paletteTileSprites.push(label);
+
+            paletteTileRects.push(new Rectangle(x, y, paletteTileSize, paletteTileSize));
+
+            paletteTileIndices.push(localIndex);
+        }
+
+        if (definitionCount == 0)
+        {
+            var emptyText = new FlxText(sidebarX + 12, 70, sidebarWidth - 24, paletteMode == "ground" ? "No groundpieces loaded" : "No objects loaded.", 12);
+
+            addFixedSprite(emptyText);
+            paletteTileSprites.push(emptyText);
+        }
+    }
+
+    function handleGUIAction(action:String):Void
+    {
+        switch (action)
+        {
+            case "tabGround":
+                setPaletteMode("ground");
+
+            case "tabObjects":
+                setPaletteMode("objects");
+
+            case "palettePrevious":
+                if (palettePage > 0)
+                {
+                    palettePage -= 1;
+                    updateUnifiedPalette();
+                }
+
+            case "paletteNext":
+                var rows = Std.int(Math.max(1, Math.floor((FlxG.height - 240) / 66)));
+                var pageSize = rows * 3;
+
+                var count = paletteMode == "ground" ? groundpieceLibrary.definitions.length : objectLibrary.definitions.length;
+
+                if ((palettePage + 1) * pageSize < count)
+                {
+                    palettePage++;
+                    updateUnifiedPalette();
+                }
+
+            case "save":
+                save();
+
+            case "open":
+                openLevelDialog();
+
+            case "saveAs":
+                saveAsDialog();
+
+            case "playtest":
+                startPlaytest();
+
+            case "delete":
+                deleteSelected();
+
+            case "layerBack":
+                moveSelectedGroundpieceLayer(-1);
+
+            case "layerFront":
+                moveSelectedGroundpieceLayer(1);
+
+            case "widthMinus":
+                resizeLevel(-resizeStep, 0);
+
+            case "widthPlus":
+                resizeLevel(resizeStep, 0);
+
+            case "heightMinus":
+                resizeLevel(0, -resizeStep);
+
+            case "heightPlus":
+                resizeLevel(0, resizeStep);
+
+            case "musicPrevious":
+                cycleMusic(-1);
+                updateMusicLabel();
+
+            case "musicNext":
+                cycleMusic(1);
+                updateMusicLabel();
+        }
+    }
+
+    function updateMusicLabel():Void
+    {
+        if (musicLibrary.tracks.length == 0)
+        {
+            musicLabel.text = "No Music";
+            return;
+        }
+
+        musicLabel.text = musicLibrary.tracks[selectedMusicIndex].name;
+    }
+
+    function handleGUIInput():Bool
+    {
+        var x = FlxG.mouse.viewX;
+        var y = FlxG.mouse.viewY;
+
+        if (FlxG.mouse.justPressed)
+        {
+            for (i in 0...toolButtonRects.length)
+            {
+                if (toolButtonRects[i].contains(x, y))
+                {
+                    var mode = toolButtonModes[i];
+
+                    if (mode == "place")
+                    {
+                        setPaletteMode("ground");
+                    }
+                    else if (mode == "object")
+                    {
+                        setPaletteMode("objects");
+                    }
+
+                    setTool(mode);
+                    return true;
+                }
+            }
+
+            for (i in 0...actionButtonRects.length)
+            {
+                if (actionButtonRects[i].contains(x, y))
+                {
+                    handleGUIAction(actionButtonActions[i]);
+                    return true;
+                }
+            }
+
+            for (i in 0...paletteTileRects.length)
+            {
+                if (paletteTileRects[i].contains(x, y))
+                {
+                    var index = paletteTileIndices[i];
+
+                    if (paletteMode == "ground")
+                    {
+                        selectedPieceIndex = index;
+                        setTool("place");
+                    }
+                    else
+                    {
+                        selectedObjectIndex = index;
+                        setTool("object");
+                    }
+
+                    updateUnifiedPalette();
+                    updateHUD();
+
+                    return true;
+                }
+            }
+        }
+
+        return mouseOverEditorGUI();
+    }
+
+    function mouseOverEditorGUI():Bool
+    {
+        var x = FlxG.mouse.viewX;
+        var y = FlxG.mouse.viewY;
+
+        return x >= sidebarX || (x < 310 && y <= 40) || (y >= FlxG.height - 50 && x < sidebarX);
     }
 }
