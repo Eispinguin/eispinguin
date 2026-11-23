@@ -85,6 +85,30 @@
             "type": "ground"
         },
         {
+            "id": "ice-long",
+            "name": "Long Ice",
+            "image": "assets/images/groundpieces/ice/ice-long.png",
+            "type": "ground"
+        },
+        {
+            "id": "ice-tall",
+            "name": "Tall Ice",
+            "image": "assets/images/groundpieces/ice/ice-tall.png",
+            "type": "ground"
+        },
+        {
+            "id": "ice-small",
+            "name": "Small Ice",
+            "image": "assets/images/groundpieces/ice/ice-small.png",
+            "type": "ground"
+        },
+        {
+            "id": "ice-smaller",
+            "name": "Smaller Ice",
+            "image": "assets/images/groundpieces/ice/ice-smaller.png",
+            "type": "ground"
+        },
+        {
             "id": "snow",
             "name": "Snow",
             "image": "assets/images/groundpieces/ice/snow.png",
