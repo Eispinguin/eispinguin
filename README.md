@@ -1,5 +1,5 @@
 # Eispinguin
-Last Updated: November 22, 2026
+Last Updated: November 23, 2026
 
 ## Introduction
 A penguin sees a UFO go over his home and wants to investigate.
@@ -8,7 +8,7 @@ The name translates to "Ice Penguin" from German to English.
 
 ## Documentation
 - `README.md` (This file) - General information and building tutorial
-- `levelediting.md` - Level editing information
+- `levelediting.md` - Level editing information (Doesn't exist yet, but will in the future)
 
 ## Building
 You'll need Haxe 4.3.7, Git, and a fully installed HaxeFlixel.
