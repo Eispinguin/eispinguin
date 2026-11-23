@@ -79,6 +79,12 @@
             "type": "ground"
         },
         {
+            "id": "ice",
+            "name": "Ice",
+            "image": "assets/images/groundpieces/ice/ice.png",
+            "type": "ground"
+        },
+        {
             "id": "snow",
             "name": "Snow",
             "image": "assets/images/groundpieces/ice/snow.png",
