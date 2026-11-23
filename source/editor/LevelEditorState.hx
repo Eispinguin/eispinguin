@@ -35,7 +35,7 @@ import util.GroundPieceDefinition;
 
 class LevelEditorState extends FlxState
 {
-    static inline var resizeStep:Int = 64;
+    static inline var resizeStep:Int = 256;
     static inline var minLevelSize:Int = 800;
     static inline var minLevelHeight:Int = 600;
     static inline var maxLevelSize:Int = 8192;
