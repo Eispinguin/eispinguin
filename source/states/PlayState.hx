@@ -56,9 +56,6 @@ class PlayState extends FlxState
 
 	var levelGradient:FlxSprite;
 
-    var gradientTop:String = "";
-    var gradientBottom:String = "";
-
 	public function new(?levelPath:String, ?playtestJson:String, ?editorLevelPath:String, ?editorSavePath:String, ?editorHistory:EditorHistory, ?editorCurrentFilePath:String)
 	{
 		super();
