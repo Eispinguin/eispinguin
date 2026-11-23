@@ -103,6 +103,18 @@
             "type": "transparent"
         },
         {
+            "id": "snowformation",
+            "name": "Snow Formation",
+            "image": "assets/images/groundpieces/ice/snowformation.png",
+            "type": "transparent"
+        },
+        {
+            "id": "snowtree",
+            "name": "Snow Tree",
+            "image": "assets/images/groundpieces/ice/tree.png",
+            "type": "transparent"
+        },
+        {
             "id": "metal_big",
             "name": "Metal Block (Big)",
             "image": "assets/images/groundpieces/metal/bigblock.png",

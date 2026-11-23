@@ -370,6 +370,16 @@ class LevelEditorState extends FlxState
             cycleMusic(1);
         }
 
+        if (FlxG.keys.justPressed.O)
+        {
+            moveSelectedGroundpieceLayer(-1);
+        }
+
+        if (FlxG.keys.justPressed.P)
+        {
+            moveSelectedGroundpieceLayer(1);
+        }
+
         updateCamera(elapsed);
 
         return false;
@@ -382,6 +392,29 @@ class LevelEditorState extends FlxState
 
         FlxG.camera.scroll.x = FlxG.camera.scroll.x < 0 ? 0 : Math.min(FlxG.camera.scroll.x, maxX);
         FlxG.camera.scroll.y = FlxG.camera.scroll.y < 0 ? 0 : Math.min(FlxG.camera.scroll.y, maxY);
+    }
+
+    function moveSelectedGroundpieceLayer(direction:Int):Void
+    {
+        if (selectedPlacementIndex < 0 || selectedPlacementIndex >= document.pieces.length)
+        {
+            return;
+        }
+
+        var oldIndex = selectedPlacementIndex;
+        var newIndex = oldIndex + direction;
+
+        if (newIndex < 0 || newIndex >= document.pieces.length)
+        {
+            return;
+        }
+
+        var placement = document.pieces.splice(oldIndex, 1)[0];
+
+        document.pieces.insert(newIndex, placement);
+        selectedPlacementIndex = newIndex;
+
+        commitEdit();
     }
 
     function updateCamera(elapsed:Float)
@@ -612,6 +645,7 @@ class LevelEditorState extends FlxState
         var definition = groundpieceLibrary.definitions[selectedPieceIndex];
 
         document.pieces.push(new LevelPiecePlacement(definition.id, x, y));
+        selectedObjectPlacementIndex = -1;
         selectedPlacementIndex = document.pieces.length - 1;
 
         commitEdit();
@@ -965,7 +999,6 @@ class LevelEditorState extends FlxState
         palettePreview.updateHitbox();
 
         palettePreview.x = FlxG.width - previewWidth - 8 + (previewWidth - palettePreview.width) / 2;
-
         palettePreview.y = 42 + paletteHeight - palettePreview.height - 8;
 
         palettePreview.visible = true;
@@ -1262,6 +1295,7 @@ class LevelEditorState extends FlxState
         hud.text = "Tool: " + tool + " | Piece: " + pieceName + " | Music: " + musicName +
         "\n1: Place Ground, 2: Select/Drag, 3: Move Player, 4: Place Object" +
         "\nQ/E: Switch Pieces, Z/X: Switch Objects, Delete: Remove, Ctrl+Z/Y: Undo/Redo" +
+        "\nO/P: Send groundpiece backwards / forwards (in layer, not position!)" +
         "\nCtrl+S: Save, ENTER: Playtest" +
         "\nArrows: Camera, Shift+Arrows: Fast Camera" +
         "\nCtrl+Shift+Arrows: Resize (32px) (Up = Decrease, Down = Increase)" +

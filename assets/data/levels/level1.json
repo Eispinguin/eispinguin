@@ -1,8 +1,8 @@
 {
   "pieces": [
     {
-      "x": -182,
-      "y": 458,
+      "x": -183,
+      "y": 451,
       "id": "blue_rocks_floor"
     },
     {
@@ -11,14 +11,14 @@
       "id": "blue_rocks_floor"
     },
     {
+      "x": 55,
+      "y": 118,
+      "id": "snowtree"
+    },
+    {
       "x": 861,
       "y": 447,
       "id": "blue_rocks_floor"
-    },
-    {
-      "x": 9,
-      "y": 459,
-      "id": "blue_rocks_floor_ice"
     },
     {
       "x": 470,
@@ -41,24 +41,9 @@
       "id": "blue_rocks_floor"
     },
     {
-      "x": 148,
-      "y": -14,
-      "id": "blue_rocks_floor"
-    },
-    {
-      "x": 277,
-      "y": -18,
-      "id": "blue_rocks_floor"
-    },
-    {
-      "x": -31,
-      "y": -12,
-      "id": "blue_rocks_floor_ice"
-    },
-    {
-      "x": 189,
-      "y": 456,
-      "id": "blue_rocks_floor"
+      "x": 709,
+      "y": 134,
+      "id": "snowformation"
     },
     {
       "x": 1141,
@@ -126,6 +111,11 @@
       "id": "metal_big"
     },
     {
+      "x": 1814,
+      "y": 167,
+      "id": "snowformation"
+    },
+    {
       "x": 1910,
       "y": 229,
       "id": "blue_rocks_floor_ice"
@@ -184,6 +174,71 @@
       "x": 1806,
       "y": 230,
       "id": "snow"
+    },
+    {
+      "x": 19,
+      "y": 451,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 210,
+      "y": 502,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 255,
+      "y": 500,
+      "id": "snow-icicle"
+    },
+    {
+      "x": 1040,
+      "y": -80,
+      "id": "cloud_bg"
+    },
+    {
+      "x": 271,
+      "y": 108,
+      "id": "cloud_bg"
+    },
+    {
+      "x": 946,
+      "y": 143,
+      "id": "cloud"
+    },
+    {
+      "x": 1369,
+      "y": 93,
+      "id": "cloud"
+    },
+    {
+      "x": 1223,
+      "y": 99,
+      "id": "cloud"
+    },
+    {
+      "x": 1523,
+      "y": 90,
+      "id": "cloud"
+    },
+    {
+      "x": 1852,
+      "y": -96,
+      "id": "cloud_bg"
+    },
+    {
+      "x": 407,
+      "y": 411,
+      "id": "grass1"
+    },
+    {
+      "x": -38,
+      "y": 434,
+      "id": "grass2"
+    },
+    {
+      "x": 89,
+      "y": 447,
+      "id": "snow"
     }
   ],
   "objects": [
@@ -199,7 +254,7 @@
   "height": 600,
   "music": "assets/music/antarctic_snow.ogg",
   "player": {
-    "x": 100,
-    "y": 445
+    "x": 72,
+    "y": 435
   }
 }

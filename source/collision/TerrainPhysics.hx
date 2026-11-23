@@ -60,7 +60,7 @@ class TerrainPhysics
 
         if (velocityY >= 0)
         {
-            var supportY = findSupportSurface(object, object.x, object.y + object.height, maxStepUp, groundSnapDistance);
+            var supportY = findSupportSurface(object, object.x, object.y + object.height, groundSnapDistance, groundSnapDistance);
 
             if (supportY >= 0)
             {
@@ -71,8 +71,8 @@ class TerrainPhysics
         }
 
         var dx = velocityX * elapsed;
-
         var horizontalSteps = Std.int(Math.ceil(Math.abs(dx)));
+        var canFollowGround = grounded && velocityY >= 0;
 
         if (horizontalSteps > 0)
         {
@@ -82,7 +82,7 @@ class TerrainPhysics
             {
                 var nextX = object.x + stepX;
 
-                if (grounded && velocityY >= 0)
+                if (canFollowGround)
                 {
                     var surfaceY = findSupportSurface(object, nextX, object.y + object.height, maxStepUp, maxStepDown);
 
@@ -91,11 +91,15 @@ class TerrainPhysics
                         object.x = nextX;
                         object.y = surfaceY - object.height;
 
+                        grounded = true;
+
                         continue;
                     }
                 }
 
-                if (horizontalEdgeBlocked(object, nextX, object.y, stepX))
+                var ignoreBottomRows = !grounded && velocityY > 0 ? 1 : 0;
+
+                if (horizontalEdgeBlocked(object, nextX, object.y, stepX, ignoreBottomRows))
                 {
                     var wallX:Int;
 
@@ -113,7 +117,7 @@ class TerrainPhysics
                     velocityX = 0;
                     hitWall = true;
 
-                    break; // nvm after searching ik why this was put here!!!
+                    break;
                 }
 
                 object.x = nextX;
@@ -266,7 +270,7 @@ class TerrainPhysics
         return false;
     }
 
-    function horizontalEdgeBlocked(object:FlxObject, x:Float, y:Float, direction:Float):Bool
+    function horizontalEdgeBlocked(object:FlxObject, x:Float, y:Float, direction:Float, ignoreBottomRows:Int = 0):Bool
     {
         var edgeX:Int;
 
@@ -280,7 +284,10 @@ class TerrainPhysics
         }
 
         var top = Std.int(Math.floor(y));
+
         var bottom = Std.int(Math.ceil(y + object.height)) - 1;
+
+        bottom = Std.int(Math.max(top, bottom - ignoreBottomRows));
 
         for (py in top...(bottom + 1))
         {
