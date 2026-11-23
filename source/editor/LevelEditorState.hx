@@ -40,9 +40,6 @@ class LevelEditorState extends FlxState
     static inline var minLevelHeight:Int = 600;
     static inline var maxLevelSize:Int = 8192;
 
-    static inline var playerWidth:Int = 8;
-    static inline var playerHeight:Int = 18;
-
     static inline var cameraSpeed:Float = 500;
 
     static inline var paletteWidth:Int = 184;
