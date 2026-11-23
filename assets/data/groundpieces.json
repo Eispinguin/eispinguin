@@ -109,6 +109,12 @@
             "type": "transparent"
         },
         {
+            "id": "snowrock",
+            "name": "Snow Rock",
+            "image": "assets/images/groundpieces/ice/snowrock.png",
+            "type": "transparent"
+        },
+        {
             "id": "snowtree",
             "name": "Snow Tree",
             "image": "assets/images/groundpieces/ice/tree.png",

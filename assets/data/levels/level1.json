@@ -126,11 +126,6 @@
       "id": "blue_rocks_floor_ice"
     },
     {
-      "x": 2105,
-      "y": 233,
-      "id": "blue_rocks_floor"
-    },
-    {
       "x": 629,
       "y": 280,
       "id": "blue_rock"
@@ -301,6 +296,11 @@
       "id": "snow-icicle"
     },
     {
+      "x": 2123,
+      "y": 157,
+      "id": "snowrock"
+    },
+    {
       "x": 2547,
       "y": 213,
       "id": "snow-icicle"
@@ -313,16 +313,6 @@
     {
       "x": 3377,
       "y": 380,
-      "id": "blue_rocks_floor_top"
-    },
-    {
-      "x": 3240,
-      "y": 555,
-      "id": "blue_rocks_floor_top"
-    },
-    {
-      "x": 3411,
-      "y": 542,
       "id": "blue_rocks_floor_top"
     },
     {
@@ -459,6 +449,31 @@
       "x": 4011,
       "y": 386,
       "id": "blue_rock"
+    },
+    {
+      "x": 2097,
+      "y": 230,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 3236,
+      "y": 580,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 3415,
+      "y": 574,
+      "id": "blue_rocks_floor_even"
+    },
+    {
+      "x": 4197,
+      "y": 465,
+      "id": "blue_rocks_floor"
+    },
+    {
+      "x": 2697,
+      "y": -80,
+      "id": "cloud_bg"
     }
   ],
   "objects": [
