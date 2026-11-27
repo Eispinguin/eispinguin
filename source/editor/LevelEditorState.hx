@@ -17,13 +17,14 @@
 
 package editor;
 
+import flixel.text.FlxText;
+import flixel.text.FlxInputText;
 import collision.GroundPiece;
 import collision.TerrainManager;
 import editor.LevelDocument;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxGradient;
 import lime.ui.FileDialog;
@@ -126,6 +127,9 @@ class LevelEditorState extends FlxState
 
     var musicLabel:FlxText;
 
+    var gradientTopInput:FlxInputText;
+    var gradientBottomInput:FlxInputText;
+
     public function new(levelAssetPath:String, savePath:String, ?initialJson:String, ?existingHistory:EditorHistory, ?currentFilePath:String)
     {
         super();
@@ -190,8 +194,11 @@ class LevelEditorState extends FlxState
 
         add(selectionOutline);
 
-        hud = new FlxText(FlxG.width * 0.5, 8, FlxG.width - sidebarWidth - 165, "", 10);
+        hud = new FlxText(FlxG.width * 0.5, 8, FlxG.width - sidebarWidth - 165, "", 14);
+        hud.font = "assets/fonts/Arimo-Regular.ttf";
+        hud.antialiasing = true;
         hud.scrollFactor.set(0, 0);
+        hud.setBorderStyle(OUTLINE, 0xFF000000, 1);
         add(hud);
 
         createEditorGUI();
@@ -230,6 +237,11 @@ class LevelEditorState extends FlxState
 
     function handleKeyboard(elapsed:Float):Bool
     {
+        if (FlxInputText.globalManager.isTyping)
+        {
+            return false;
+        }
+
         if (FlxG.keys.pressed.CONTROL && FlxG.keys.pressed.SHIFT)
         {
             if (FlxG.keys.justPressed.LEFT)
@@ -368,7 +380,7 @@ class LevelEditorState extends FlxState
         FlxG.camera.scroll.y = Math.max(0, Math.min(FlxG.camera.scroll.y, maxY));
     }
 
-    function moveSelectedGroundpieceLayer(direction:Int):Void
+    function moveSelectedGroundpieceLayer(direction:Int)
     {
         if (selectedPlacementIndex < 0 || selectedPlacementIndex >= document.pieces.length)
         {
@@ -490,7 +502,7 @@ class LevelEditorState extends FlxState
         updateCameraBounds();
     }
 
-    function handleMouse():Void
+    function handleMouse()
     {
         var mx = Std.int(Math.floor(FlxG.mouse.x));
         var my = Std.int(Math.floor(FlxG.mouse.y));
@@ -1056,7 +1068,7 @@ class LevelEditorState extends FlxState
         terrain.replacePieces(pieces);
     }
 
-    function rebuildObjects():Void
+    function rebuildObjects()
     {
         for (sprite in objectSprites)
         {
@@ -1134,6 +1146,7 @@ class LevelEditorState extends FlxState
         selectedMusicIndex = musicLibrary.findOrAdd(document.music);
 
         syncTerrainToDocument();
+        updateGradientInputs();
         updatePlayerMarker();
         refreshSelection();
         updateUnifiedPalette();
@@ -1261,6 +1274,7 @@ class LevelEditorState extends FlxState
             selectedMusicIndex = musicLibrary.findOrAdd(document.music);
 
             syncTerrainToDocument();
+            updateGradientInputs();
             updatePlayerMarker();
             refreshSelection();
             updateUnifiedPalette();
@@ -1331,7 +1345,7 @@ class LevelEditorState extends FlxState
         #end
     }
 
-    function saveToPath(path:String):Void
+    function saveToPath(path:String)
     {
         #if sys
         try
@@ -1359,6 +1373,9 @@ class LevelEditorState extends FlxState
 
     function updateLevelGradient()
     {
+        document.gradientTop = normaliseGradientColor(document.gradientTop);
+        document.gradientBottom = normaliseGradientColor(document.gradientBottom);
+
         if (levelGradient != null && displayedGradientBottom == document.gradientBottom && displayedGradientTop == document.gradientTop)
         {
             return;
@@ -1372,7 +1389,7 @@ class LevelEditorState extends FlxState
         var parsedTop = FlxColor.fromString(document.gradientTop);
         var parsedBottom = FlxColor.fromString(document.gradientBottom);
 
-        var topColor:FlxColor = parsedTop == null ? 0x45C4FF : cast parsedTop;
+        var topColor:FlxColor = parsedTop == null ? FlxColor.WHITE : cast parsedTop;
         var bottomColor:FlxColor = parsedBottom == null ? FlxColor.WHITE : cast parsedBottom;
 
         levelGradient = FlxGradient.createGradientFlxSprite(FlxG.width, FlxG.height, [topColor, bottomColor], 1, 90);
@@ -1399,10 +1416,14 @@ class LevelEditorState extends FlxState
         background.scrollFactor.set(0, 0);
         add(background);
 
-        var text = new FlxText(x + 3, y + Std.int((height - 14) / 2), width - 6, label, 8);
+        var text = new FlxText(x + 3, y + Std.int((height - 14) / 2), width - 6, label, 11);
 
         text.alignment = "center";
+        text.font = "assets/fonts/Arimo-Regular.ttf";
+        text.antialiasing = true;
         text.scrollFactor.set(0, 0);
+        text.setBorderStyle(OUTLINE, 0xFF000000, 1);
+
         add(text);
 
         actionButtonRects.push(new Rectangle(x, y, width, height));
@@ -1435,9 +1456,14 @@ class LevelEditorState extends FlxState
         addActionButton("<", sidebarX + 8, FlxG.height - 143, 30, 25, "musicPrevious");
         addActionButton(">", sidebarX + 178, FlxG.height - 143, 30, 25, "musicNext");
 
-        musicLabel = new FlxText(sidebarX + 42, FlxG.height - 140, 132, "", 10);
+        musicLabel = new FlxText(sidebarX + 42, FlxG.height - 140, 132, "", 14);
+        musicLabel.font = "assets/fonts/Arimo-Regular.ttf";
         musicLabel.alignment = "center";
+        musicLabel.antialiasing = true;
+        musicLabel.setBorderStyle(OUTLINE, 0xFF000000, 1);
         addFixedSprite(musicLabel);
+
+        createGradientInputs();
 
         var buttonY = FlxG.height - 46;
         var x = 5;
@@ -1613,9 +1639,11 @@ class LevelEditorState extends FlxState
                 itemName = itemName.substr(0, 7) + ".";
             }
 
-            var label = new FlxText(x + 1, y + 42, paletteTileSize - 2, itemName, 8);
-
+            var label = new FlxText(x + 1, y + 42, paletteTileSize - 2, itemName, 14);
             label.alignment = "center";
+            label.antialiasing = true;
+            label.font = "assets/fonts/Arimo-Regular.ttf";
+            label.setBorderStyle(OUTLINE, 0xFF000000, 1);
 
             addFixedSprite(label);
             paletteTileSprites.push(label);
@@ -1627,14 +1655,19 @@ class LevelEditorState extends FlxState
 
         if (definitionCount == 0)
         {
-            var emptyText = new FlxText(sidebarX + 12, 70, sidebarWidth - 24, paletteMode == "ground" ? "No groundpieces loaded" : "No objects loaded.", 12);
+            var emptyText = new FlxText(sidebarX + 12, 70, sidebarWidth - 24, paletteMode == "ground" ? "No groundpieces loaded" : "No objects loaded.", 14);
+
+            emptyText.font = "assets/fonts/Arimo-Regular.ttf";
+            emptyText.antialiasing = true;
+            emptyText.setBorderStyle(OUTLINE, 0xFF000000, 1);
 
             addFixedSprite(emptyText);
+
             paletteTileSprites.push(emptyText);
         }
     }
 
-    function handleGUIAction(action:String):Void
+    function handleGUIAction(action:String)
     {
         switch (action)
         {
@@ -1706,7 +1739,7 @@ class LevelEditorState extends FlxState
         }
     }
 
-    function updateMusicLabel():Void
+    function updateMusicLabel()
     {
         if (musicLibrary.tracks.length == 0)
         {
@@ -1787,5 +1820,141 @@ class LevelEditorState extends FlxState
         var y = FlxG.mouse.viewY;
 
         return x >= sidebarX || (x < 310 && y <= 40) || (y >= FlxG.height - 50 && x < sidebarX);
+    }
+
+    function createGradientInputs()
+    {
+        var labelY = FlxG.height - 114;
+        var inputY = FlxG.height - 95;
+
+        var topLabel = new FlxText(sidebarX + 8, labelY, 94, "Top Colour", 14);
+        var bottomLabel = new FlxText(sidebarX + 108, labelY, 94, "Bottom Colour", 14);
+
+        topLabel.font = "assets/fonts/Arimo-Regular.ttf";
+        bottomLabel.font = "assets/fonts/Arimo-Regular.ttf";
+
+        topLabel.antialiasing = true;
+        bottomLabel.antialiasing = true;
+
+        topLabel.setBorderStyle(OUTLINE, 0xFF000000, 1);
+        bottomLabel.setBorderStyle(OUTLINE, 0xFF000000, 1);
+
+        addFixedSprite(topLabel);
+        addFixedSprite(bottomLabel);
+
+        gradientTopInput = new FlxInputText(sidebarX + 8, inputY, 94, document.gradientTop, 14, FlxColor.BLACK, FlxColor.WHITE);
+        gradientBottomInput = new FlxInputText(sidebarX + 108, inputY, 94, document.gradientBottom, 14, FlxColor.BLACK, FlxColor.WHITE);
+
+        gradientTopInput.maxChars = 10;
+        gradientBottomInput.maxChars = 10;
+
+        gradientTopInput.multiline = false;
+        gradientBottomInput.multiline = false;
+
+        gradientTopInput.background = true;
+        gradientBottomInput.background = true;
+
+        gradientTopInput.fieldBorderColor = FlxColor.BLACK;
+        gradientBottomInput.fieldBorderColor = FlxColor.BLACK;
+
+        gradientTopInput.fieldBorderThickness = 1;
+        gradientBottomInput.fieldBorderThickness = 1;
+
+        gradientTopInput.font = "assets/fonts/Arimo-Regular.ttf";
+        gradientBottomInput.font = "assets/fonts/Arimo-Regular.ttf";
+
+        gradientTopInput.antialiasing = true;
+        gradientBottomInput.antialiasing = true;
+
+        gradientTopInput.onEnter.add(function(text:String)
+        {
+            applyGradientColor(true, text);
+        });
+
+        gradientBottomInput.onEnter.add(function(text:String)
+        {
+            applyGradientColor(false, text);
+        });
+
+        addFixedSprite(gradientTopInput);
+        addFixedSprite(gradientBottomInput);
+    }
+
+    function applyGradientColor(isTop:Bool, value:String)
+    {
+        var colour = normaliseGradientColor(value);
+
+        if (isTop)
+        {
+            gradientTopInput.text = colour;
+
+            if (document.gradientTop == colour)
+            {
+                return;
+            }
+
+            document.gradientTop = colour;
+        }
+        else
+        {
+            gradientBottomInput.text = colour;
+
+            if (document.gradientBottom == colour)
+            {
+                return;
+            }
+
+            document.gradientBottom = colour;
+        }
+
+        updateLevelGradient();
+
+        commitEdit(false);
+    }
+
+    function normaliseGradientColor(value:String):String
+    {
+        if (value == null)
+        {
+            return "0xFFFFFF";
+        }
+
+        var trimmed = StringTools.trim(value);
+
+        // TODO: Discuss whether 0x should be required
+        if (trimmed.length < 2 || trimmed.substr(0, 2).toLowerCase() != "0x")
+        {
+            return "0xFFFFFF";
+        }
+
+        var hex = trimmed.substr(2).toUpperCase();
+
+        if (hex.length != 6 && hex.length != 8)
+        {
+            return "0xFFFFFF";
+        }
+
+        for (i in 0...hex.length)
+        {
+            if ("0123456789ABCDEF".indexOf(hex.charAt(i)) == -1)
+            {
+                return "0xFFFFFF";
+            }
+        }
+
+        return "0x" + hex;
+    }
+
+    function updateGradientInputs()
+    {
+        if (gradientTopInput != null)
+        {
+            gradientTopInput.text = document.gradientTop;
+        }
+
+        if (gradientBottomInput != null)
+        {
+            gradientBottomInput.text = document.gradientBottom;
+        }
     }
 }
