@@ -383,12 +383,17 @@ class LevelEditorState extends FlxState
             return;
         }
 
+        if (!terrain.movePieceLayer(oldIndex, direction))
+        {
+            return;
+        }
+
         var placement = document.pieces.splice(oldIndex, 1)[0];
 
         document.pieces.insert(newIndex, placement);
         selectedPlacementIndex = newIndex;
 
-        commitEdit();
+        commitEdit(false);
     }
 
     function updateCamera(elapsed:Float)
