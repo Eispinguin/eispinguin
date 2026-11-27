@@ -71,7 +71,10 @@ class TerrainManager
             return;
         }
 
-        addPieces([piece]);
+        clearRemovedUnderPiece(piece);
+        pieces.push(piece);
+
+        rebuildRegion(piece.x, piece.y, piece.bitmap.width, piece.bitmap.height);
     }
 
     public function addPieces(newPieces:Array<GroundPiece>)
@@ -93,6 +96,22 @@ class TerrainManager
         }
 
         rebuildAll();
+    }
+
+    public function removePiece(index:Int):Bool
+    {
+        if (index < 0 || index >= pieces.length)
+        {
+            return false;
+        }
+
+        var piece = pieces[index];
+
+        pieces.splice(index, 1);
+
+        rebuildRegion(piece.x, piece.y, piece.bitmap.width, piece.bitmap.height);
+
+        return true;
     }
 
     function clearRemovedUnderPiece(piece:GroundPiece)
