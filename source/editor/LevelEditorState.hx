@@ -383,12 +383,17 @@ class LevelEditorState extends FlxState
             return;
         }
 
+        if (!terrain.movePieceLayer(oldIndex, direction))
+        {
+            return;
+        }
+
         var placement = document.pieces.splice(oldIndex, 1)[0];
 
         document.pieces.insert(newIndex, placement);
         selectedPlacementIndex = newIndex;
 
-        commitEdit();
+        commitEdit(false);
     }
 
     function updateCamera(elapsed:Float)
@@ -608,10 +613,13 @@ class LevelEditorState extends FlxState
         var definition = groundpieceLibrary.definitions[selectedPieceIndex];
 
         document.pieces.push(new LevelPiecePlacement(definition.id, x, y));
+
         selectedObjectPlacementIndex = -1;
         selectedPlacementIndex = document.pieces.length - 1;
 
-        commitEdit();
+        terrain.addPiece(new GroundPiece(definition.bitmap, x, y, definition.type, definition.collisionMask));
+
+        commitEdit(false);
     }
 
     function placeObject(x:Int, y:Int)
@@ -628,7 +636,8 @@ class LevelEditorState extends FlxState
         selectedObjectPlacementIndex = document.objects.length - 1;
         selectedPlacementIndex = -1;
 
-        commitEdit();
+        rebuildObjects();
+        commitEdit(false);
     }
 
     function selectGroundpiece(x:Int, y:Int)
@@ -835,17 +844,31 @@ class LevelEditorState extends FlxState
         if (selectedObjectPlacementIndex >= 0 && selectedObjectPlacementIndex < document.objects.length)
         {
             document.objects.splice(selectedObjectPlacementIndex, 1);
+
             selectedObjectPlacementIndex = -1;
-            commitEdit();
+            selectedPlacementIndex = -1;
+
+            rebuildObjects();
+            commitEdit(false);
 
             return;
         }
 
         if (selectedPlacementIndex >= 0 && selectedPlacementIndex < document.pieces.length)
         {
-            document.pieces.splice(selectedPlacementIndex, 1);
+            var index = selectedPlacementIndex;
+
+            if (!terrain.removePiece(index))
+            {
+                return;
+            }
+
+            document.pieces.splice(index, 1);
+
             selectedPlacementIndex = -1;
-            commitEdit();
+            selectedObjectPlacementIndex = -1;
+
+            commitEdit(false);
         }
     }
 
