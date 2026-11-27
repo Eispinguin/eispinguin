@@ -52,6 +52,10 @@ class Player extends EPSprite
     public var jumpBufferDuration:Float = 0.2;
     public var skidDuration:Float = 0.2;
 
+    // Direction
+    public var moveDirection:Int = 0;
+    public var faceDirection:Int = 1;
+
     public function new(x:Float, y:Float, physics:TerrainPhysics)
     {
         super(x, y, physics);
@@ -66,16 +70,12 @@ class Player extends EPSprite
         setSize(8, standingHeight);
         offset.set(4, 7);
 
-        velocity.set(0, 0);
-        acceleration.set(0, 0);
-        drag.set(0, 0);
-
         onGround = physics.isGrounded(this, 2);
     }
 
-    override public function update(elapsed:Float)
+    override public function updateMovement(elapsed:Float)
     {
-        super.update(elapsed);
+        super.updateMovement(elapsed);
 
         // Timers below!
 
@@ -91,24 +91,26 @@ class Player extends EPSprite
             killPlayer();
         }
 
-        var direction:Int = 0;
+        moveDirection = 0;
 
         if (!(isDucking && onGround))
         {
             if (FlxG.keys.pressed.LEFT)
             {
-                direction = -1;
+                moveDirection = -1;
+                faceDirection = -1;
                 flipX = true;
             }
 
             if (FlxG.keys.pressed.RIGHT)
             {
-                direction = 1;
+                moveDirection = 1;
+                faceDirection = 1;
                 flipX = false;
             }
         }
 
-        var targetVelocityX = direction * walkSpeed;
+        var targetVelocityX = moveDirection * walkSpeed;
 
         if (isDucking && onGround)
         {
@@ -116,7 +118,7 @@ class Player extends EPSprite
         }
         else 
         {
-            if (direction != 0)
+            if (moveDirection != 0)
             {
                 velocityX = approach(velocityX, targetVelocityX, groundAcceleration * elapsed);
             }
@@ -139,9 +141,7 @@ class Player extends EPSprite
 
         touchingGround = physics.isGrounded(this, 2);
 
-        onGround = touchingGround;
-
-        if (onGround && ((velocityX > 0 && direction == -1) || (velocityX < 0 && direction == 1)))
+        if (touchingGround && ((velocityX > 0 && moveDirection == -1) || (velocityX < 0 && moveDirection == 1)))
         {
             if (Math.abs(velocityX) > skidThreshold)
             {
@@ -192,8 +192,6 @@ class Player extends EPSprite
             jumpBufferTimer = 0;
             coyoteTimer = 0;
 
-            onGround = false;
-
             jumpCutApplied = false;
 
             if (!jumpHeld)
@@ -211,17 +209,11 @@ class Player extends EPSprite
         }
 
         jumpWasHeld = jumpHeld;
+    }
 
-        var result = physics.move(this, velocityX, velocityY, elapsed);
-
-        velocityX = result.velocityX;
-        velocityY = result.velocityY;
-
-        onGround = result.grounded;
-
-        hittingCeiling = result.hitCeiling;
-        touchingWall = result.hitWall;
-        walkingIntoWall = result.hitWall && direction != 0;
+    override public function updateAfterPhysics(elapsed:Float):Void
+    {
+        walkingIntoWall = touchingWall && moveDirection != 0;
 
         if (onGround)
         {

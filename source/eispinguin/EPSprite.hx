@@ -30,10 +30,12 @@ class EPSprite extends FlxSprite
     var velocityX:Float = 0;
     var velocityY:Float = 0;
 
-    // Other things
+    // Physics states
     public var onGround:Bool = false;
     public var touchingWall:Bool = false;
     public var hittingCeiling:Bool = false;
+
+    // Character states
     public var walkingIntoWall:Bool = false;
 
     public function new(x:Float, y:Float, physics:TerrainPhysics)
@@ -50,31 +52,58 @@ class EPSprite extends FlxSprite
     override public function update(elapsed:Float)
     {
         super.update(elapsed);
-        
+
         velocity.set(0, 0);
+
+        updateMovement(elapsed);
+
+        var result = physics.move(this, velocityX, velocityY, elapsed);
+
+        velocityX = result.velocityX;
+        velocityY = result.velocityY;
+
+        onGround = result.grounded;
+        touchingWall = result.hitWall;
+        hittingCeiling = result.hitCeiling;
+
+        updateAfterPhysics(elapsed);
     }
 
+    /** Override for movement */
+    public function updateMovement(elapsed:Float)
+    {
+    }
+
+    /** Override for animation */
+    public function updateAfterPhysics(elapsed:Float)
+    {
+    }
+
+    /** x + width * 0.5 */
     public function getCenterX():Float
     {
         return x + width * 0.5;
     }
 
+    /** y + height * 0.5 */
     public function getCenterY():Float
     {
         return y + height * 0.5;
     }
 
+    /** x + width */
     public function getRight():Float
     {
         return x + width;
     }
 
+    /** y + height */
     public function getBottom():Float
     {
         return y + height;
     }
 
-    // Acceleration and deceleration
+    /** Acceleration and deceleration */
     public function approach(current:Float, target:Float, amount:Float):Float
     {
         if (current < target)
@@ -90,7 +119,7 @@ class EPSprite extends FlxSprite
         return target;
     }
 
-    // Just so the animation doesn't restart without a reason
+    /** Use instead of animation.play() */
     public function playAnimation(animation:String, force:Bool = false)
     {
         if (force)
