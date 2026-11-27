@@ -504,7 +504,7 @@ class TerrainManager
         rebuildRegion(newX, newY, piece.bitmap.width, piece.bitmap.height);
     }
 
-    public function destroy():Void
+    public function destroy()
     {
         renderMask.dispose();
         sprite.destroy();

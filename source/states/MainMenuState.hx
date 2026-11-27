@@ -80,6 +80,10 @@ class MainMenuState extends FlxState
         {
             var item = new FlxText(0, 0, 0, options[i], 16);
             item.ID = i;
+            item.font = "assets/fonts/Arimo-Regular.ttf";
+            item.setBorderStyle(OUTLINE, 0xFF000000, 1);
+            item.antialiasing = true;
+
             menuItems.add(item);
 
             if (item.width > maxWidth)
@@ -108,6 +112,10 @@ class MainMenuState extends FlxState
         {
             item.x = (menuBox.x + menuBox.width * 0.5) - item.width * 0.5;
             item.y = currentY;
+            item.font = "assets/fonts/Arimo-Regular.ttf";
+            item.setBorderStyle(OUTLINE, 0xFF000000, 1);
+            item.antialiasing = true;
+
             currentY += item.height + itemSpacing;
         });
 
